@@ -48,7 +48,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'"
     },
     "updater": {
       "active": false

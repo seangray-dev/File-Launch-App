@@ -1,5 +1,5 @@
-import GoogleSignInBtn from './Buttons/GoogleSignInBtn';
-import DropboxSignInBtn from './Buttons/DropboxSignInBtn';
+import GoogleSignInBtn from '../Buttons/GoogleSignInBtn';
+import DropboxSignInBtn from '../Buttons/DropboxSignInBtn';
 
 const SignInPage = () => {
   return (

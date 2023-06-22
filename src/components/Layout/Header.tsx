@@ -3,7 +3,7 @@ import { UserIcon } from '@heroicons/react/24/solid';
 import { Cog6ToothIcon } from '@heroicons/react/24/solid';
 import { BellIcon } from '@heroicons/react/24/solid';
 
-export const Header = () => {
+export const Header = ({ setCurrentView }) => {
   return (
     <header className='p-4 border-b border-gray/10'>
       <ul className='flex gap-2 items-center justify-end'>
@@ -20,14 +20,14 @@ export const Header = () => {
             title='Search'
           />
         </li>
-        <li>
+        <li onClick={() => setCurrentView('UserProfile')}>
           <span
             className='text-gray hover:text-white transition-all duration-300 cursor-pointer'
             title='User Profile'>
             <UserIcon className='w-6' />
           </span>
         </li>
-        <li>
+        <li onClick={() => setCurrentView('Settings')}>
           <span
             className='text-gray hover:text-white transition-all duration-300 cursor-pointer'
             title='Settings'>

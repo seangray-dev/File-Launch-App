@@ -3,7 +3,7 @@ import { FolderOpenIcon } from '@heroicons/react/24/solid';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
 import { WrenchScrewdriverIcon } from '@heroicons/react/24/solid';
 
-export const SideBar = () => {
+export const SideBar = ({ setCurrentView }) => {
   const [isToolsMenuOpen, setToolsMenuOpen] = useState(false);
 
   const handleToolMenuClick = () => {
@@ -15,11 +15,15 @@ export const SideBar = () => {
       <img className='mx-auto mb-10' src='/images/logo-no-background.png' />
       <h2 className='font-bold mb-10 text-white'>Dashboard</h2>
       <ul className='flex flex-col gap-6'>
-        <li className='flex gap-2 text-gray hover:text-white hover:cursor-pointer transition-all duration-300'>
+        <li
+          className='flex gap-2 text-gray hover:text-white hover:cursor-pointer transition-all duration-300'
+          onClick={() => setCurrentView('RecentFiles')}>
           <FolderOpenIcon className='w-6' />
           <span>Recent Files</span>
         </li>
-        <li className='flex gap-2 text-gray hover:text-white hover:cursor-pointer transition-all duration-300'>
+        <li
+          className='flex gap-2 text-gray hover:text-white hover:cursor-pointer transition-all duration-300'
+          onClick={() => setCurrentView('Clients')}>
           <UserGroupIcon className='w-6' />
           <span>Clients</span>
         </li>
@@ -30,10 +34,14 @@ export const SideBar = () => {
           </div>
           {isToolsMenuOpen && (
             <ul className='flex flex-col gap-2 text-gray'>
-              <li className='pl-4 hover:text-white hover:cursor-pointer transition-all duration-300'>
+              <li
+                className='pl-4 hover:text-white hover:cursor-pointer transition-all duration-300'
+                onClick={() => setCurrentView('FormatFiles')}>
                 Format Files
               </li>
-              <li className='pl-4 hover:text-white hover:cursor-pointer transition-all duration-300'>
+              <li
+                className='pl-4 hover:text-white hover:cursor-pointer transition-all duration-300'
+                onClick={() => setCurrentView('EmailTemplates')}>
                 Email Templates
               </li>
             </ul>
