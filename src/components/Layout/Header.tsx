@@ -1,9 +1,10 @@
+import { ArrowLeftOnRectangleIcon } from '@heroicons/react/24/solid';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { Cog6ToothIcon } from '@heroicons/react/24/solid';
 import { BellIcon } from '@heroicons/react/24/solid';
 
-export const Header = ({ setCurrentView }) => {
+const Header = ({ setCurrentView, logout }) => {
   return (
     <header className='p-4 border-b border-gray/10'>
       <ul className='flex gap-2 items-center justify-end'>
@@ -41,7 +42,16 @@ export const Header = ({ setCurrentView }) => {
             <BellIcon className='w-6' />
           </span>
         </li>
+        <li onClick={logout}>
+          <span
+            className='text-gray hover:text-white transition-all duration-300 cursor-pointer'
+            title='Notifications'>
+            <ArrowLeftOnRectangleIcon className='w-6' />
+          </span>
+        </li>
       </ul>
     </header>
   );
 };
+
+export default Header;

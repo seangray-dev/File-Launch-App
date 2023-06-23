@@ -3,7 +3,7 @@ import { FolderOpenIcon } from '@heroicons/react/24/solid';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
 import { WrenchScrewdriverIcon } from '@heroicons/react/24/solid';
 
-export const SideBar = ({ setCurrentView }) => {
+const SideBar = ({ setCurrentView }) => {
   const [isToolsMenuOpen, setToolsMenuOpen] = useState(false);
 
   const handleToolMenuClick = () => {
@@ -51,3 +51,5 @@ export const SideBar = ({ setCurrentView }) => {
     </section>
   );
 };
+
+export default SideBar;
