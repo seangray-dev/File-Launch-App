@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { dialog } from '@tauri-apps/api';
 
 import ButtonMain from '../Buttons/ButtonMain';
@@ -34,12 +34,10 @@ const Settings = () => {
       <h1 className='font-bold text-2xl'>Settings</h1>
       <div className='flex flex-col gap-6'>
         <section className='flex items-center justify-between'>
-          <div className='flex flex-col gap-2'>
+          <div>
             <p>Theme</p>
           </div>
-          <div>
-            <input type='radio' id='dark'></input>
-          </div>
+          <div className='flex items-center gap-4'></div>
         </section>
         <section className='flex items-center justify-between'>
           <div className='flex flex-col gap-2'>
