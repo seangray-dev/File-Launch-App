@@ -45,7 +45,7 @@ const Header = ({ setCurrentView, logout }) => {
         <li onClick={logout}>
           <span
             className='text-gray hover:text-white transition-all duration-300 cursor-pointer'
-            title='Notifications'>
+            title='Logout'>
             <ArrowLeftOnRectangleIcon className='w-6' />
           </span>
         </li>

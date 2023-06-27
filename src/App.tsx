@@ -12,7 +12,10 @@ import Settings from './components/Layout/Settings';
 import UserProfile from './components/Layout/UserProfile';
 
 function App() {
-  const [currentView, setCurrentView] = useState('');
+  const [currentView, setCurrentView] = useState(() => {
+    const savedStartupView = window.localStorage.getItem('startupView');
+    return savedStartupView ? savedStartupView : 'default-view';
+  });
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -56,9 +59,7 @@ function App() {
         <SideBar setCurrentView={setCurrentView} />
         <section>
           <Header logout={logout} setCurrentView={setCurrentView} />
-          <div className='grid place-items-center text-white'>
-            {componentInView}
-          </div>
+          <div className='grid text-white pt-4 px-4'>{componentInView}</div>
         </section>
       </>
     </main>
