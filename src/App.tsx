@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { login, logout } from './services/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import ThemeProvider from './context/ThemeProvider';
+import { ThemeProvider } from './context/ThemeContext';
 import SideBar from './components/Layout/SideBar';
 import Header from './components/Layout/Header';
 import SignInPage from './components/Layout/SignIn';
@@ -55,15 +55,19 @@ function App() {
   }
 
   return (
-    <main className='min-h-screen grid grid-cols-[200px_1fr]'>
-      <>
-        <SideBar setCurrentView={setCurrentView} />
-        <section>
-          <Header logout={logout} setCurrentView={setCurrentView} />
-          <div className='grid text-darkBlue pt-4 px-4'>{componentInView}</div>
-        </section>
-      </>
-    </main>
+    <ThemeProvider>
+      <main className='min-h-screen grid grid-cols-[200px_1fr]'>
+        <>
+          <SideBar setCurrentView={setCurrentView} />
+          <section>
+            <Header logout={logout} setCurrentView={setCurrentView} />
+            <div className='grid text-darkBlue pt-4 px-4'>
+              {componentInView}
+            </div>
+          </section>
+        </>
+      </main>
+    </ThemeProvider>
   );
 }
 

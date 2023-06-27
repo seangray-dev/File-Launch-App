@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.dark {
+  --bg-color: #080c20;
+  --text-color: white;
+}
+
+.light {
+  --bg-color: white;
+  --text-color: #080c20;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}

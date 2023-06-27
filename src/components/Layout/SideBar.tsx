@@ -13,11 +13,11 @@ const SideBar = ({ setCurrentView }) => {
   return (
     <section className='border-r border-r-gray/10 p-4 pt-8 min-h-screen flex flex-col'>
       <img
-        className='mx-auto mb-10'
+        className='mx-auto mb-10 dark:hidden'
         src='/images/logo-no-background-light.png'
       />
       <img
-        className='mx-auto mb-10 hidden'
+        className='mx-auto mb-10 hidden dark:block'
         src='/images/logo-no-background.png'
       />
 
