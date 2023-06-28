@@ -24,11 +24,12 @@ const BaseFolder = () => {
   };
 
   return (
-    <section className='flex items-center justify-between'>
+    <section className='flex items-center justify-between border-b border-b-gray pb-10'>
       <div className='flex flex-col gap-2'>
-        <p className='text-darkBlue dark:text-white'>Base Folder:</p>
-        <p className='text-gray'>{baseFolder}</p>
+        <p className='text-xl text-darkBlue dark:text-white'>Base Folder:</p>
+        <p className='text-gray'>Set the working folder</p>
       </div>
+      <p className='text-gray'>{baseFolder}</p>
       <ButtonMain onClick={selectDirectory}>Change Folder</ButtonMain>
     </section>
   );

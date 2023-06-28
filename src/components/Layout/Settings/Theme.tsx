@@ -7,11 +7,12 @@ const Theme = () => {
   const themes = ['light', 'dark', 'system'];
 
   return (
-    <section className='flex items-center justify-between'>
+    <section className='flex justify-between border-b border-b-gray pb-10'>
       <div className='text-darkBlue dark:text-white'>
-        <p>Theme:</p>
+        <p className='text-xl'>Theme:</p>
+        <p className='text-gray'>Set the color scheme</p>
       </div>
-      <div className='flex items-center gap-4'>
+      <div className='flex gap-4'>
         <RadioGroup value={theme} onChange={handleThemeChange}>
           <RadioGroup.Label className='sr-only'>Theme</RadioGroup.Label>
           <div className='flex items-center gap-4'>
