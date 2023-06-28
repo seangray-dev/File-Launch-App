@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-import { login, logout } from './services/auth';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import AuthProvider from './context/AuthContext';
+import { logout } from './services/auth';
 import SideBar from './components/Layout/SideBar';
 import Header from './components/Layout/Header';
-import SignInPage from './components/Layout/SignIn';
 import Clients from './components/Layout/Clients';
 import EmailTemplates from './components/Layout/EmailTemplates';
 import FormatFiles from './components/Layout/FormatFiles';
@@ -17,32 +16,22 @@ function App() {
     const savedStartupView = window.localStorage.getItem('startupView');
     return savedStartupView ? savedStartupView : 'default-view';
   });
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   let componentInView;
   switch (currentView) {
-    case 'RecentFiles':
+    case 'Recent Files':
       componentInView = <RecentFiles />;
       break;
     case 'Clients':
       componentInView = <Clients />;
       break;
-    case 'FormatFiles':
+    case 'Format Files':
       componentInView = <FormatFiles />;
       break;
-    case 'EmailTemplates':
+    case 'Email Templates':
       componentInView = <EmailTemplates />;
       break;
-    case 'UserProfile':
+    case 'User Profile':
       componentInView = <UserProfile />;
       break;
     case 'Settings':
@@ -50,24 +39,22 @@ function App() {
       break;
   }
 
-  if (!user) {
-    return <SignInPage login={login} />;
-  }
-
   return (
-    <ThemeProvider>
-      <main className='min-h-screen grid grid-cols-[200px_1fr]'>
-        <>
-          <SideBar setCurrentView={setCurrentView} />
-          <section>
-            <Header logout={logout} setCurrentView={setCurrentView} />
-            <div className='grid text-darkBlue pt-4 px-4'>
-              {componentInView}
-            </div>
-          </section>
-        </>
-      </main>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <main className='min-h-screen grid grid-cols-[200px_1fr]'>
+          <>
+            <SideBar setCurrentView={setCurrentView} />
+            <section>
+              <Header logout={logout} setCurrentView={setCurrentView} />
+              <div className='grid text-darkBlue pt-4 px-10'>
+                {componentInView}
+              </div>
+            </section>
+          </>
+        </main>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

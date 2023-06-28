@@ -13,18 +13,18 @@ export default function Startup() {
 
   const [startupView, setStartupView] = useState(() => {
     const savedStartupView = window.localStorage.getItem('startupView');
-    return savedStartupView
-      ? savedStartupView.replace(/_/g, ' ')
-      : startupViews[0];
+    return savedStartupView ? savedStartupView : startupViews[0];
   });
 
   useEffect(() => {
-    window.localStorage.setItem('startupView', startupView.replace(/ /g, ''));
+    window.localStorage.setItem('startupView', startupView);
   }, [startupView]);
 
   return (
     <section>
-      <p className='mb-2 text-darkBlue dark:text-white'>Startup Settings:</p>
+      <p className='mb-2 text-xl text-darkBlue dark:text-white'>
+        Startup Settings:
+      </p>
       <div className='flex items-center justify-between'>
         <p className='text-gray'>Set the default view on application launch</p>
         <div className='w-48'>
