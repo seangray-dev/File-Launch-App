@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from '../../context/ThemeContext';
 import { dialog } from '@tauri-apps/api';
+import Startup from './Settings/Startup';
 
 import ButtonMain from '../Buttons/ButtonMain';
 
@@ -8,11 +9,6 @@ const Settings = () => {
   const [baseFolder, setBaseFolder] = useState(() => {
     const savedBaseFolder = window.localStorage.getItem('baseFolder');
     return savedBaseFolder || '';
-  });
-
-  const [startupView, setStartupView] = useState(() => {
-    const savedStartupView = window.localStorage.getItem('startupView');
-    return savedStartupView || '';
   });
 
   const { theme, handleThemeChange } = useContext(ThemeContext);
@@ -82,27 +78,7 @@ const Settings = () => {
           </div>
           <ButtonMain onClick={selectDirectory}>Change Folder</ButtonMain>
         </section>
-        <section>
-          <p className='mb-2 text-darkBlue dark:text-white'>
-            Startup Settings:
-          </p>
-          <div className='flex items-center justify-between'>
-            <p className='text-gray'>
-              Set the default view on application launch
-            </p>
-            <select
-              className='bg-cyan text-darkBlue outline-none'
-              value={startupView}
-              onChange={(event) => setStartupView(event.target.value)}>
-              <option value='RecentFiles'>Recent Files</option>
-              <option value='Clients'>Clients</option>
-              <option value='FormatFiles'>Format Files</option>
-              <option value='EmailTemplates'>Email Templates</option>
-              <option value='UserProfile'>User Profile</option>
-              <option value='Settings'>Settings</option>
-            </select>
-          </div>
-        </section>
+        <Startup />
       </div>
     </div>
   );
