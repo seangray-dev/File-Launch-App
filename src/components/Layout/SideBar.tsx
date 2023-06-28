@@ -24,7 +24,7 @@ const SideBar = ({ setCurrentView }) => {
       <ul className='flex flex-col gap-6'>
         <li
           className='flex gap-2 text-gray hover:text-cyan hover:cursor-pointer transition-all duration-300'
-          onClick={() => setCurrentView('RecentFiles')}>
+          onClick={() => setCurrentView('Recent Files')}>
           <FolderOpenIcon className='w-6' />
           <span>Recent Files</span>
         </li>
@@ -43,12 +43,12 @@ const SideBar = ({ setCurrentView }) => {
             <ul className='flex flex-col gap-2 text-gray'>
               <li
                 className='pl-4 hover:text-cyan hover:cursor-pointer transition-all duration-300'
-                onClick={() => setCurrentView('FormatFiles')}>
+                onClick={() => setCurrentView('Format Files')}>
                 Format Files
               </li>
               <li
                 className='pl-4 hover:text-cyan hover:cursor-pointer transition-all duration-300'
-                onClick={() => setCurrentView('EmailTemplates')}>
+                onClick={() => setCurrentView('Email Templates')}>
                 Email Templates
               </li>
             </ul>

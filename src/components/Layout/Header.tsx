@@ -21,7 +21,7 @@ const Header = ({ setCurrentView, logout }) => {
             title='Search'
           />
         </li>
-        <li onClick={() => setCurrentView('UserProfile')}>
+        <li onClick={() => setCurrentView('User Profile')}>
           <span
             className='text-gray hover:text-cyan transition-all duration-300 cursor-pointer'
             title='User Profile'>
