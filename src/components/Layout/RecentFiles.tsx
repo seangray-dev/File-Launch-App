@@ -16,26 +16,41 @@ const RecentFiles = () => {
 
   const loadRecentFiles = async (dirPath) => {
     try {
-      const filesInDir = await fs.readDir(dirPath, { recursive: true });
-      const recentAudioFiles = filesInDir
-        .filter(
-          (file) => file.extension === '.mp3' || file.extension === '.wav'
-        )
-        .sort((a, b) => new Date(b.created) - new Date(a.created))
-        .slice(0, 10);
-      setRecentFiles(recentAudioFiles);
+      const allFiles = await getAllFiles(dirPath);
+      // Filter the files by .mp3 and .wav extensions
+      const audioFiles = allFiles.filter(
+        (file) => file.name.endsWith('.mp3') || file.name.endsWith('.wav')
+      );
+      setRecentFiles(audioFiles);
     } catch (error) {
       console.error('Failed to read directory:', error);
     }
+  };
+
+  const getAllFiles = async (dirPath, filesArr = []) => {
+    const files = await fs.readDir(dirPath);
+    for (let file of files) {
+      try {
+        const subFiles = await fs.readDir(`${dirPath}/${file.name}`);
+        filesArr = await getAllFiles(`${dirPath}/${file.name}`, filesArr);
+      } catch (error) {
+        filesArr.push(file);
+      }
+    }
+    return filesArr;
   };
 
   return (
     <div className='dark:text-white'>
       <p>Base folder: {baseFolder}</p>
       <h2>Recent Audio Files:</h2>
-      <ul>
+      <ul className='flex flex-col gap-2'>
         {recentFiles.map((file, index) => (
-          <li key={index}>{file.name}</li>
+          <li
+            className='text-gray hover:text-white bg-gradient-to-r from-deepBlue py-1 px-2 cursor-pointer rounded-md'
+            key={index}>
+            {file.name}
+          </li>
         ))}
       </ul>
     </div>
