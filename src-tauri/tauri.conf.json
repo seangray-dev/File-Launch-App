@@ -12,7 +12,28 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "clipboard": {
+        "writeText": true
+      },
+      "dialog": {
+        "confirm": true,
+        "open": true
+      },
+      "fs": {
+        "copyFile": true,
+        "createDir": true,
+        "exists": true,
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "scope": ["$APPDATA/**", "$APPLOG/*", "$APPLOG/*/**", "$DESKTOP/*/**"]
+      },
+      "path": {
+        "all": true
+      },
+      "shell": {
+        "open": true
+      }
     },
     "bundle": {
       "active": true,
