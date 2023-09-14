@@ -1,4 +1,5 @@
-import { dialog, invoke } from '@tauri-apps/api';
+import { Button } from '@/components/ui/button';
+import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
 import ButtonMain from '../../Buttons/ButtonMain';
 
@@ -30,10 +31,11 @@ const BaseFolder = () => {
 				<p className='text-sm text-muted-foreground'>Set the working folder</p>
 			</div>
 			<div>
-				<p>Current:</p>
-				<p className='text-sm text-muted-foreground'>{baseFolder}</p>
+				<span className='text-xs text-muted-foreground whitespace-wrap text-overflow-ellipsis max-w-[150px]'>
+					{baseFolder}
+				</span>
 			</div>
-			<ButtonMain onClick={selectDirectory}>Change Folder</ButtonMain>
+			<Button onClick={selectDirectory}>Change Folder</Button>
 		</section>
 	);
 };
