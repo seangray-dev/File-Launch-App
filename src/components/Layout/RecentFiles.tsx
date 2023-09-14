@@ -87,7 +87,6 @@ const RecentFiles = () => {
 	return (
 		<div className='dark:text-white'>
 			<p>Base folder: {baseFolder}</p>
-			<h2>Recent Audio Files:</h2>
 			{/* <ul className='flex flex-col gap-2'>
 				{recentFiles.map((file, index) => (
 					<li
