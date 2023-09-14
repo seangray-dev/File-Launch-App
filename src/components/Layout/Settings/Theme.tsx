@@ -1,52 +1,41 @@
-import { RadioGroup } from '@headlessui/react';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useContext } from 'react';
 import { ThemeContext } from '../../../context/ThemeContext';
 
 const Theme = () => {
-  const { theme, handleThemeChange } = useContext(ThemeContext);
-  const themes = ['light', 'dark', 'system'];
+	const { theme, handleThemeChange } = useContext(ThemeContext);
+	const themes = ['light', 'dark', 'system'];
 
-  return (
-    <section className='flex justify-between border-b border-b-gray pb-10'>
-      <div className='text-darkBlue dark:text-white'>
-        <p className='text-xl'>Theme:</p>
-        <p className='text-gray'>Set the color scheme</p>
-      </div>
-      <div className='flex gap-4'>
-        <RadioGroup value={theme} onChange={handleThemeChange}>
-          <RadioGroup.Label className='sr-only'>Theme</RadioGroup.Label>
-          <div className='flex items-center gap-4'>
-            {themes.map((themeOption) => (
-              <RadioGroup.Option key={themeOption} value={themeOption}>
-                {({ active, checked }) => (
-                  <div>
-                    <label
-                      className={`cursor-pointer select-none relative py-2 px-6 hover:text-gray dark:hover:text-gray hover:border-gray transition-all duration-300 border rounded-md ${
-                        checked
-                          ? 'text-cyan border-cyan'
-                          : 'dark:text-white text-darkBlue'
-                      } `}>
-                      <input
-                        type='radio'
-                        name='theme'
-                        className='hidden'
-                        checked={checked}
-                        onChange={() => handleThemeChange(themeOption)}
-                      />
-                      <span>
-                        {themeOption.charAt(0).toUpperCase() +
-                          themeOption.slice(1)}
-                      </span>
-                    </label>
-                  </div>
-                )}
-              </RadioGroup.Option>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-    </section>
-  );
+	return (
+		<section className='flex justify-between border-b border-b-gray pb-10'>
+			<div>
+				<p className='text-xl'>Theme:</p>
+				<p className='text-sm text-muted-foreground'>Set the color scheme</p>
+			</div>
+			<div className='flex gap-4'>
+				<RadioGroup
+					defaultValue='system'
+					value={theme}
+					onValueChange={handleThemeChange}>
+					<div className='flex items-center gap-8'>
+						{themes.map((themeOption) => (
+							<div
+								className='flex flex-col items-center gap-3'
+								key={themeOption}>
+								<Label htmlFor={themeOption} className='cursor-pointer'>
+									<span>
+										{themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}
+									</span>
+								</Label>
+								<RadioGroupItem id={themeOption} value={themeOption} />
+							</div>
+						))}
+					</div>
+				</RadioGroup>
+			</div>
+		</section>
+	);
 };
 
 export default Theme;
