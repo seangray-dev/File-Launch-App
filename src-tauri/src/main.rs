@@ -4,6 +4,16 @@
 use tauri::api::dialog::FileDialogBuilder;
 
 
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![select_directory])
+        .plugin(tauri_plugin_oauth::init())
+        .plugin(tauri_plugin_persisted_scope::init())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+
 #[tauri::command]
 async fn select_directory() -> Result<String, String> {
     let (tx, rx) = std::sync::mpsc::channel();
@@ -20,12 +30,4 @@ async fn select_directory() -> Result<String, String> {
         }
     });
     rx.recv().unwrap()
-}
-
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory])
-        .plugin(tauri_plugin_oauth::init())
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
 }

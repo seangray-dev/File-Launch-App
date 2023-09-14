@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
-import ButtonMain from '../../Buttons/ButtonMain';
 
 const BaseFolder = () => {
 	const [baseFolder, setBaseFolder] = useState(() => {
