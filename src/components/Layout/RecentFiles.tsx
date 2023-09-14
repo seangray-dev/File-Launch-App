@@ -1,101 +1,193 @@
-import { fs } from '@tauri-apps/api';
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
 
 const RecentFiles = () => {
 	const [baseFolder, setBaseFolder] = useState('');
 	const [recentFiles, setRecentFiles] = useState([]);
+	const clearAllFilters = () => {
+		setLastModifiedFilters({
+			oneDay: false,
+			threeDays: false,
+			sevenDays: false,
+		});
+		setFileTypeFilters({
+			mp3: false,
+			wav: false,
+			mp4: false,
+		});
+	};
+	const [lastModifiedFilters, setLastModifiedFilters] = useState({
+		oneDay: false,
+		threeDays: false,
+		sevenDays: false,
+	});
+
+	const [fileTypeFilters, setFileTypeFilters] = useState({
+		mp3: false,
+		wav: false,
+		mp4: false,
+	});
 
 	useEffect(() => {
 		const savedBaseFolder = window.localStorage.getItem('baseFolder');
 		if (savedBaseFolder) {
 			setBaseFolder(savedBaseFolder);
 			// loadRecentFiles(savedBaseFolder);
+			fetchFiles();
 		}
-	}, []);
+	}, [baseFolder]);
 
-	// const checkWavFile = async (filePath) => {
-	// 	const fileBuffer = await fs.readBinaryFile(filePath, {
-	// 		chunk: { start: 0, end: 44 },
-	// 	});
-	// 	const dataView = new DataView(new Uint8Array(fileBuffer).buffer);
-	// 	const numChannels = dataView.getUint16(22, true);
-	// 	return numChannels === 2;
-	// };
+	const fetchFiles = async () => {
+		try {
+			const files = await invoke('scan_directory', { baseFolder });
+			console.log('Files:', files);
+			setRecentFiles(files);
+		} catch (error) {
+			console.error('Failed to scan directory:', error);
+		}
+	};
+	const getFilteredFiles = () => {
+		const currentTime = Math.floor(Date.now() / 1000);
+		return recentFiles.filter((file) => {
+			// Last Modified Filters
+			const lastModified = parseInt(file.lastModified, 10);
+			if (lastModifiedFilters.oneDay && currentTime - lastModified > 86400)
+				return false;
+			if (lastModifiedFilters.threeDays && currentTime - lastModified > 259200)
+				return false;
+			if (lastModifiedFilters.sevenDays && currentTime - lastModified > 604800)
+				return false;
 
-	// const audioContext = new AudioContext();
+			// File Type Filters
+			const filterKeys = Object.keys(fileTypeFilters);
+			if (filterKeys.some((key) => fileTypeFilters[key])) {
+				// If any fileType filter is active
+				if (
+					!filterKeys.some(
+						(key) => fileTypeFilters[key] && file.fileType === key
+					)
+				)
+					return false;
+			}
 
-	// const loadRecentFiles = async (dirPath) => {
-	// 	try {
-	// 		const allFiles = await getAllFiles(dirPath);
-	// 		const audioFiles = allFiles.filter(
-	// 			(file) =>
-	// 				!file.isDirectory &&
-	// 				(file.name.endsWith('.mp3') || file.name.endsWith('.wav'))
-	// 		);
+			return true;
+		});
+	};
 
-	// 		const stereoFiles = [];
-
-	// 		for (let audioFile of audioFiles) {
-	// 			console.log('Reading file:', audioFile);
-
-	// 			if (audioFile.name.endsWith('.wav')) {
-	// 				const isStereo = await checkWavFile(audioFile.path);
-	// 				if (isStereo) {
-	// 					stereoFiles.push(audioFile);
-	// 				}
-	// 			} else {
-	// 				const fileBuffer = await fs.readBinaryFile(audioFile.path);
-	// 				const blob = new Blob([fileBuffer]);
-	// 				const blobUrl = URL.createObjectURL(blob);
-
-	// 				const audioData = await fetch(blobUrl).then((response) =>
-	// 					response.arrayBuffer()
-	// 				);
-	// 				const decodedAudioData = await audioContext.decodeAudioData(
-	// 					audioData
-	// 				);
-
-	// 				if (decodedAudioData.numberOfChannels === 2) {
-	// 					stereoFiles.push(audioFile);
-	// 				}
-
-	// 				URL.revokeObjectURL(blobUrl);
-	// 			}
-	// 		}
-
-	// 		console.log('Stereo Files:', stereoFiles);
-	// 		setRecentFiles(stereoFiles);
-	// 	} catch (error) {
-	// 		console.error('Failed to read directory:', error);
-	// 	}
-	// };
-
-	// const getAllFiles = async (dirPath, filesArr = []) => {
-	// 	const files = await fs.readDir(dirPath);
-	// 	for (let file of files) {
-	// 		try {
-	// 			filesArr = await getAllFiles(`${dirPath}/${file.name}`, filesArr);
-	// 		} catch (error) {
-	// 			// If not a directory, assume it's a file and add a flag.
-	// 			file.isDirectory = false;
-	// 			filesArr.push(file);
-	// 		}
-	// 	}
-	// 	return filesArr;
-	// };
+	const filteredFiles = getFilteredFiles();
 
 	return (
 		<div className='dark:text-white'>
-			<p>Base folder: {baseFolder}</p>
-			{/* <ul className='flex flex-col gap-2'>
-				{recentFiles.map((file, index) => (
-					<li
-						className='text-gray hover:text-white bg-gradient-to-r from-deepBlue py-1 px-2 cursor-pointer rounded-md'
-						key={index}>
-						{file.name}
-					</li>
-				))}
-			</ul> */}
+			<Table>
+				<TableHeader>
+					<TableRow className='grid grid-cols-3'>
+						<TableHead>File Name</TableHead>
+						<TableHead>Client</TableHead>
+						<TableHead className='text-right'>
+							<DropdownMenu>
+								<DropdownMenuTrigger>Filters</DropdownMenuTrigger>
+								<DropdownMenuContent className='w-56'>
+									<DropdownMenuLabel>Last Modified</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuCheckboxItem
+										checked={lastModifiedFilters.oneDay}
+										onCheckedChange={() =>
+											setLastModifiedFilters({
+												...lastModifiedFilters,
+												oneDay: !lastModifiedFilters.oneDay,
+											})
+										}>
+										1 day
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuCheckboxItem
+										checked={lastModifiedFilters.threeDays}
+										onCheckedChange={() =>
+											setLastModifiedFilters({
+												...lastModifiedFilters,
+												threeDays: !lastModifiedFilters.threeDays,
+											})
+										}>
+										3 days
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuCheckboxItem
+										checked={lastModifiedFilters.sevenDays}
+										onCheckedChange={() =>
+											setLastModifiedFilters({
+												...lastModifiedFilters,
+												sevenDays: !lastModifiedFilters.sevenDays,
+											})
+										}>
+										7 days
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuLabel>File Type</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuCheckboxItem
+										checked={fileTypeFilters.mp3}
+										onCheckedChange={() =>
+											setFileTypeFilters({
+												...fileTypeFilters,
+												mp3: !fileTypeFilters.mp3,
+											})
+										}>
+										.mp3
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuCheckboxItem
+										checked={fileTypeFilters.wav}
+										onCheckedChange={() =>
+											setFileTypeFilters({
+												...fileTypeFilters,
+												wav: !fileTypeFilters.wav,
+											})
+										}>
+										.wav
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuCheckboxItem
+										checked={fileTypeFilters.mp4}
+										onCheckedChange={() =>
+											setFileTypeFilters({
+												...fileTypeFilters,
+												mp4: !fileTypeFilters.mp4,
+											})
+										}>
+										.mp4
+									</DropdownMenuCheckboxItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem onSelect={clearAllFilters}>
+										Clear All Filters
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</TableHead>
+					</TableRow>
+					<TableBody>
+						{filteredFiles.map((file, idx) => (
+							<TableRow className='grid grid-cols-3' key={idx}>
+								<TableCell>{file.name}</TableCell>
+								<TableCell className='flex-grow text-muted-foreground'>
+									{file.parent}
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</TableHeader>
+			</Table>
 		</div>
 	);
 };
