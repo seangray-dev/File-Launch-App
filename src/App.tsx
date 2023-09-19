@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AudioPlayer from './components/Layout/AudioPlayer';
 import Clients from './components/Layout/Clients';
 import EmailTemplates from './components/Layout/EmailTemplates';
 import FormatFiles from './components/Layout/FormatFiles';
@@ -46,13 +47,14 @@ function App() {
 	return (
 		<AuthProvider>
 			<ThemeProvider>
-				<main className='min-h-screen grid grid-cols-[200px_1fr]'>
+				<main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
 					<>
 						<SideBar setCurrentView={setCurrentView} />
-						<section>
+						<section className='flex flex-col h-full'>
 							<Header logout={logout} setCurrentView={setCurrentView} />
-							<div className='grid text-darkBlue pt-4 px-10'>
-								{componentInView}
+							<div className='flex-grow grid pt-4'>{componentInView}</div>
+							<div className='bottom-0 sticky z-50'>
+								<AudioPlayer />
 							</div>
 						</section>
 					</>
