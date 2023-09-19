@@ -59,20 +59,31 @@ const AudioPlayer = () => {
 			<div>Current Track</div>
 			<div className='flex items-center gap-4 justify-center'>
 				<span title='Previous'>
-					<SkipBackIcon size={20} />
+					<SkipBackIcon
+						className='text-white-muted hover:text-white duration-300 transition-color'
+						size={20}
+					/>
 				</span>
 				<span
-					className='hover:scale-105 transition-all duration-300'
+					className='hover:scale-105 hover:text-white-muted transition-all duration-300'
 					title={playPauseTitle}>
 					{PlayPauseIcon}
 				</span>
 				<span title='Next'>
-					<SkipForwardIcon size={20} />
+					<SkipForwardIcon
+						className='text-white-muted hover:text-white duration-300 transition-color'
+						size={20}
+					/>
 				</span>
 			</div>
-			<div className='flex gap-2'>
-				<span title={volumeTitle}>{VolumeIcon}</span>
+			<div className='flex gap-2 justify-end'>
+				<span
+					className='text-white-muted hover:text-white duration-300 transition-colors'
+					title={volumeTitle}>
+					{VolumeIcon}
+				</span>
 				<Slider
+					className='w-1/2'
 					value={volume}
 					min={0}
 					max={100}
