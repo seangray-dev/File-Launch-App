@@ -23,6 +23,7 @@ module.exports = {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				'white-muted': 'hsla(var(--white-muted))',
+				'black-muted': 'hsla(var(--black-muted))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
