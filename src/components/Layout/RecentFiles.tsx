@@ -7,7 +7,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import {
 	Table,
 	TableBody,
@@ -16,19 +15,23 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-
+import { setCurrentFile, togglePlay } from '@/redux/features/currentFile-slice';
 import { invoke } from '@tauri-apps/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PauseIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-import { PauseIcon, PlayIcon } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const RecentFiles = () => {
+	const dispatch = useDispatch();
+	const isPlaying = useSelector((state) => state.currentFile.isPlaying);
+	const activeFileIndex = useSelector(
+		(state) => state.currentFile.activeFileIndex
+	);
+
 	const [baseFolder, setBaseFolder] = useState('');
 	const [recentFiles, setRecentFiles] = useState([]);
 	const [areFilesChecked, setAreFilesChecked] = useState(false);
 	const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
-	const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
 	const clearAllFilters = () => {
 		setLastModifiedFilters({
@@ -94,14 +97,15 @@ const RecentFiles = () => {
 	};
 
 	const handlePlay = (idx) => {
-		if (selectedRowIndex === idx) {
-			// Reset to show PlayIcon if clicked again
-			setSelectedRowIndex(null);
+		if (activeFileIndex === idx) {
+			dispatch(togglePlay());
 		} else {
-			// Set selected row index to show PauseIcon
-			setSelectedRowIndex(idx);
+			const fileName = filteredFiles[idx].name;
+			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
+			if (!isPlaying) {
+				dispatch(togglePlay());
+			}
 		}
-		// Incorporate playing the audio
 	};
 
 	const getFilteredFiles = () => {
@@ -243,15 +247,18 @@ const RecentFiles = () => {
 											onMouseLeave={() => setHoveredRowIndex(null)}
 											onClick={() => handlePlay(idx)}>
 											<TableCell>
-												{hoveredRowIndex === idx &&
-													selectedRowIndex !== idx && (
-														<div className='absolute left-3 top-0 bottom-0 flex items-center'>
-															<PlayIcon size={18} />
-														</div>
-													)}
-												{selectedRowIndex === idx && (
+												{hoveredRowIndex === idx && activeFileIndex !== idx && (
 													<div className='absolute left-3 top-0 bottom-0 flex items-center'>
-														<PauseIcon size={18} />
+														<PlayIcon size={18} />
+													</div>
+												)}
+												{activeFileIndex === idx && (
+													<div className='absolute left-3 top-0 bottom-0 flex items-center'>
+														{isPlaying ? (
+															<PauseIcon size={18} />
+														) : (
+															<PlayIcon size={18} />
+														)}
 													</div>
 												)}
 											</TableCell>

@@ -1,4 +1,5 @@
 import { Slider } from '@/components/ui/slider';
+import { togglePlay } from '@/redux/features/currentFile-slice';
 import {
 	PauseCircleIcon,
 	PlayCircleIcon,
@@ -9,11 +10,14 @@ import {
 	VolumeXIcon,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const AudioPlayer = () => {
+	const dispatch = useDispatch();
+	const isPlaying = useSelector((state) => state.currentFile.isPlaying);
+	const currentFileName = useSelector((state) => state.currentFile.name);
 	const [volume, setVolume] = useState([50]);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
-	const [isPlaying, setIsPlaying] = useState(false);
 
 	const handleVolumeChange = (value: number[]) => {
 		setVolume(value);
@@ -29,7 +33,7 @@ const AudioPlayer = () => {
 	};
 
 	const togglePlayPause = () => {
-		setIsPlaying(!isPlaying);
+		dispatch(togglePlay());
 	};
 
 	let VolumeIcon;
@@ -56,7 +60,7 @@ const AudioPlayer = () => {
 
 	return (
 		<section className='grid grid-cols-3 bg-secondary py-6 px-4 items-center'>
-			<div>Current Track</div>
+			<div className='text-sm'>{currentFileName}</div>
 			<div className='flex items-center gap-4 justify-center'>
 				<span title='Previous'>
 					<SkipBackIcon
