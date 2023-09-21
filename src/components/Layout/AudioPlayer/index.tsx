@@ -12,10 +12,10 @@ import { useState } from 'react';
 
 const AudioPlayer = () => {
 	const [volume, setVolume] = useState([50]);
-	const [previousVolume, setPreviousVolume] = useState(null);
+	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 
-	const handleVolumeChange = (value) => {
+	const handleVolumeChange = (value: number[]) => {
 		setVolume(value);
 	};
 
