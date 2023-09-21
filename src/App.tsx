@@ -11,6 +11,7 @@ import Stats from './components/Layout/Stats';
 import UserProfile from './components/Layout/UserProfile';
 import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ReduxProvider } from './redux/provider';
 import { logout } from './services/auth';
 
 function App() {
@@ -47,18 +48,22 @@ function App() {
 	return (
 		<AuthProvider>
 			<ThemeProvider>
-				<main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
-					<>
-						<SideBar setCurrentView={setCurrentView} />
-						<section className='flex flex-col h-full'>
-							<Header logout={logout} setCurrentView={setCurrentView} />
-							<div className='flex-grow grid pt-4 px-4'>{componentInView}</div>
-							<div className='bottom-0 sticky z-50'>
-								<AudioPlayer />
-							</div>
-						</section>
-					</>
-				</main>
+				<ReduxProvider>
+					<main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
+						<>
+							<SideBar setCurrentView={setCurrentView} />
+							<section className='flex flex-col h-full'>
+								<Header logout={logout} setCurrentView={setCurrentView} />
+								<div className='flex-grow grid pt-4 px-4'>
+									{componentInView}
+								</div>
+								<div className='bottom-0 sticky z-50'>
+									<AudioPlayer />
+								</div>
+							</section>
+						</>
+					</main>
+				</ReduxProvider>
 			</ThemeProvider>
 		</AuthProvider>
 	);
