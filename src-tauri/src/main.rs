@@ -11,9 +11,11 @@ use std::time::SystemTime;
 use std::time::Duration;
 use std::fs::File;
 use std::io::BufReader;
-use rodio::{Decoder, OutputStream, Sink, source::Source};
+use rodio::{Decoder, OutputStream, Sink, source::Source, source::SineWave};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
+use std::thread;
+use std::sync::Arc;
 
 
 // Global Mutex-wrapped variable to hold preloaded files
@@ -21,6 +23,7 @@ static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy
 
 // Global variable to store the base folder path
 static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
+
 
 fn main() {
      let runtime = tokio::runtime::Runtime::new().unwrap();
@@ -160,24 +163,59 @@ fn check_audio_channels(path: String) -> String {
 
 #[tauri::command]
 fn play_audio(path: String) -> Result<String, String> {
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let sink = Sink::try_new(&stream_handle).unwrap();
+    println!("Spawning new thread for full audio pipeline...");
 
-    let file = match File::open(&path) {
-        Ok(file) => file,
-        Err(_) => return Err(format!("Failed to open file: {}", path)),
-    };
+    thread::spawn(move || {
+        println!("Trying to initialize audio output stream and sink...");
 
-    let source = match rodio::Decoder::new(BufReader::new(file)) {
-        Ok(source) => source,
-        Err(_) => return Err(format!("Failed to decode file: {}", path)),
-    };
+        let (_stream, stream_handle) = match OutputStream::try_default() {
+            Ok((stream, handle)) => (stream, handle),
+            Err(e) => {
+                println!("Failed to get output stream: {}", e);
+                return;
+            }
+        };
 
-    sink.append(source);
-    sink.sleep_until_end();
+        let sink = match Sink::try_new(&stream_handle) {
+            Ok(s) => Arc::new(s),
+            Err(e) => {
+                println!("Failed to create audio sink");
+                return;
+            }
+        };
 
-    Ok("Playback completed".to_string())
+        println!("Trying to open file at: {}", path);
+        let file = match File::open(&path) {
+            Ok(f) => f,
+            Err(e) => {
+                println!("Failed to open file: {} ({})", path, e);
+                return;
+            }
+        };
+
+        let source = match Decoder::new(BufReader::new(file)) {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Failed to decode file: {} ({})", path, e);
+                return;
+            }
+        };
+
+        println!("Appending audio source to sink...");
+        sink.append(source);
+
+        println!("Is sink empty before play: {}", sink.empty());
+
+        println!("About to play the audio...");
+        sink.set_volume(1.0);
+        sink.play();
+        println!("Audio should be playing now...");
+
+        // Keeping the thread alive while the audio plays
+        sink.sleep_until_end();
+
+        println!("Audio playback complete. Thread exiting.");
+    });
+
+    Ok("Playback thread spawned".to_string())
 }
-
-
-

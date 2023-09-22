@@ -1,5 +1,6 @@
 import { Slider } from '@/components/ui/slider';
 import { togglePlay } from '@/redux/features/currentFile-slice';
+import { invoke } from '@tauri-apps/api';
 import {
 	PauseCircleIcon,
 	PlayCircleIcon,
@@ -34,6 +35,9 @@ const AudioPlayer = () => {
 
 	const togglePlayPause = () => {
 		dispatch(togglePlay());
+		invoke('play_audio', { path: currentFileName }).catch((err) =>
+			console.error('Failed to play audio:', err)
+		);
 	};
 
 	let VolumeIcon;

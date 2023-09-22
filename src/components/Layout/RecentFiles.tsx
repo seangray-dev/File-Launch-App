@@ -101,7 +101,11 @@ const RecentFiles = () => {
 			dispatch(togglePlay());
 		} else {
 			const fileName = filteredFiles[idx].name;
+			const filePath = filteredFiles[idx].path;
 			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
+			invoke('play_audio', { path: filePath }).catch((err) =>
+				console.error('Failed to play audio:', err)
+			);
 			if (!isPlaying) {
 				dispatch(togglePlay());
 			}

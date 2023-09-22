@@ -4,12 +4,14 @@ type CurrentFileState = {
 	isPlaying: boolean;
 	activeFileIndex: number | null;
 	name: string;
+	path: string;
 };
 
 const initialState: CurrentFileState = {
 	isPlaying: false,
 	activeFileIndex: null,
 	name: '',
+	path: '',
 };
 
 export const currentFile = createSlice({
