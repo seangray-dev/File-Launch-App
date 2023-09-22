@@ -23,6 +23,7 @@ tauri-plugin-persisted-scope = { git = "https://github.com/tauri-apps/plugins-wo
 rodio = "0.17.1"
 once_cell = "1.8"
 tokio = { version = "1", features = ["full"] }
+lazy_static = "1.4"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
