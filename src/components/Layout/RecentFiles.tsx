@@ -115,6 +115,8 @@ const RecentFiles = () => {
 			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
 
 			// Use the Redux thunk instead of directly invoking
+			// Unsure of this error here...
+			// Expected 0 arguments, but got 1.
 			dispatch(playAudio(filePath)).catch((err) =>
 				console.error('Failed to play audio:', err)
 			);
