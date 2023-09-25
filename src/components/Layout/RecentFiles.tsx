@@ -15,14 +15,19 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { setCurrentFile, togglePlay } from '@/redux/features/currentFile-slice';
+import {
+	playAudio,
+	setCurrentFile,
+	togglePlay,
+} from '@/redux/features/currentFile-slice';
+import { AppDispatch } from '@/redux/store';
 import { invoke } from '@tauri-apps/api';
 import { Loader2, PauseIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const RecentFiles = () => {
-	const dispatch = useDispatch();
+	const dispatch: AppDispatch = useDispatch();
 	const isPlaying = useSelector((state) => state.currentFile.isPlaying);
 	const activeFileIndex = useSelector(
 		(state) => state.currentFile.activeFileIndex
@@ -103,9 +108,12 @@ const RecentFiles = () => {
 			const fileName = filteredFiles[idx].name;
 			const filePath = filteredFiles[idx].path;
 			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
-			invoke('play_audio', { path: filePath }).catch((err) =>
+
+			// Use the Redux thunk instead of directly invoking
+			dispatch(playAudio(filePath)).catch((err) =>
 				console.error('Failed to play audio:', err)
 			);
+
 			if (!isPlaying) {
 				dispatch(togglePlay());
 			}

@@ -11,11 +11,12 @@ use std::time::SystemTime;
 use std::time::Duration;
 use std::fs::File;
 use std::io::BufReader;
-use rodio::{Decoder, OutputStream, Sink, source::Source, source::SineWave};
+use rodio::{Decoder, OutputStream, Sink, source::Source};
 use once_cell::sync::Lazy;
-use std::sync::Mutex;
 use std::thread;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
+use lazy_static::lazy_static;
 
 
 // Global Mutex-wrapped variable to hold preloaded files
@@ -23,6 +24,12 @@ static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy
 
 // Global variable to store the base folder path
 static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
+
+//  global mutable singleton variable for the sink and playback status
+lazy_static! {
+    static ref GLOBAL_SINK: Arc<Mutex<Option<Arc<Sink>>>> = Arc::new(Mutex::new(None));
+    static ref IS_PLAYING: AtomicBool = AtomicBool::new(false);
+}
 
 
 fn main() {
@@ -163,6 +170,21 @@ fn check_audio_channels(path: String) -> String {
 
 #[tauri::command]
 fn play_audio(path: String) -> Result<String, String> {
+    // Check if audio is already playing
+    if IS_PLAYING.load(Ordering::SeqCst) {
+        // Stop the currently playing audio
+        let global_sink = GLOBAL_SINK.lock().unwrap();
+        if let Some(current_sink) = global_sink.as_ref() {
+            current_sink.pause();
+        }
+
+        // Set IS_PLAYING back to false to indicate that playback has stopped
+        IS_PLAYING.store(false, Ordering::SeqCst);
+    }
+
+    // Set IS_PLAYING to true to indicate that playback is in progress
+    IS_PLAYING.store(true, Ordering::SeqCst);
+
     println!("Spawning new thread for full audio pipeline...");
 
     thread::spawn(move || {
@@ -172,6 +194,8 @@ fn play_audio(path: String) -> Result<String, String> {
             Ok((stream, handle)) => (stream, handle),
             Err(e) => {
                 println!("Failed to get output stream: {}", e);
+                // Reset IS_PLAYING to false
+                IS_PLAYING.store(false, Ordering::SeqCst);
                 return;
             }
         };
@@ -179,16 +203,26 @@ fn play_audio(path: String) -> Result<String, String> {
         let sink = match Sink::try_new(&stream_handle) {
             Ok(s) => Arc::new(s),
             Err(e) => {
-                println!("Failed to create audio sink");
+                println!("Failed to create audio sink: {}", e);
+                // Reset IS_PLAYING to false
+                IS_PLAYING.store(false, Ordering::SeqCst); 
                 return;
             }
         };
+
+        // Update global sink
+        {
+            let mut global_sink = GLOBAL_SINK.lock().unwrap();
+            *global_sink = Some(sink.clone());
+        }
 
         println!("Trying to open file at: {}", path);
         let file = match File::open(&path) {
             Ok(f) => f,
             Err(e) => {
                 println!("Failed to open file: {} ({})", path, e);
+                // Reset IS_PLAYING to false
+                IS_PLAYING.store(false, Ordering::SeqCst); 
                 return;
             }
         };
@@ -197,6 +231,8 @@ fn play_audio(path: String) -> Result<String, String> {
             Ok(s) => s,
             Err(e) => {
                 println!("Failed to decode file: {} ({})", path, e);
+                // Reset IS_PLAYING to false
+                IS_PLAYING.store(false, Ordering::SeqCst);
                 return;
             }
         };
@@ -214,7 +250,16 @@ fn play_audio(path: String) -> Result<String, String> {
         // Keeping the thread alive while the audio plays
         sink.sleep_until_end();
 
+        // Set IS_PLAYING back to false to indicate that playback has stopped
+        IS_PLAYING.store(false, Ordering::SeqCst);
+
         println!("Audio playback complete. Thread exiting.");
+
+        // Clear global sink
+        {
+            let mut global_sink = GLOBAL_SINK.lock().unwrap();
+            *global_sink = None;
+        }
     });
 
     Ok("Playback thread spawned".to_string())
