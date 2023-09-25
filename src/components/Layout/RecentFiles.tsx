@@ -20,7 +20,8 @@ import {
 	setCurrentFile,
 	togglePlay,
 } from '@/redux/features/currentFile-slice';
-import { AppDispatch } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
+import { FileObject } from '@/types';
 import { invoke } from '@tauri-apps/api';
 import { Loader2, PauseIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -28,15 +29,17 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const RecentFiles = () => {
 	const dispatch: AppDispatch = useDispatch();
-	const isPlaying = useSelector((state) => state.currentFile.isPlaying);
+	const isPlaying = useSelector(
+		(state: RootState) => state.currentFile.isPlaying
+	);
 	const activeFileIndex = useSelector(
-		(state) => state.currentFile.activeFileIndex
+		(state: RootState) => state.currentFile.activeFileIndex
 	);
 
 	const [baseFolder, setBaseFolder] = useState('');
-	const [recentFiles, setRecentFiles] = useState([]);
+	const [recentFiles, setRecentFiles] = useState<FileObject[]>([]);
 	const [areFilesChecked, setAreFilesChecked] = useState(false);
-	const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
+	const [hoveredRowIndex, setHoveredRowIndex] = useState<number | null>(null);
 
 	const clearAllFilters = () => {
 		setLastModifiedFilters({
@@ -74,7 +77,9 @@ const RecentFiles = () => {
 	const fetchFiles = async () => {
 		setAreFilesChecked(false);
 		try {
-			const files = await invoke('scan_directory', { baseFolder });
+			const files: FileObject[] = await invoke('scan_directory', {
+				baseFolder,
+			});
 			for (const file of files) {
 				if (file.path) {
 					try {
@@ -101,7 +106,7 @@ const RecentFiles = () => {
 		}
 	};
 
-	const handlePlay = (idx) => {
+	const handlePlay = (idx: number = 0) => {
 		if (activeFileIndex === idx) {
 			dispatch(togglePlay());
 		} else {
@@ -124,7 +129,8 @@ const RecentFiles = () => {
 		const currentTime = Math.floor(Date.now() / 1000);
 		return recentFiles.filter((file) => {
 			// Last Modified Filters
-			const lastModified = parseInt(file.lastModified, 10);
+			const lastModified = parseInt(file.lastModified!, 10);
+
 			if (lastModifiedFilters.oneDay && currentTime - lastModified > 86400)
 				return false;
 			if (lastModifiedFilters.threeDays && currentTime - lastModified > 259200)
@@ -133,7 +139,10 @@ const RecentFiles = () => {
 				return false;
 
 			// File Type Filters
-			const filterKeys = Object.keys(fileTypeFilters);
+			const filterKeys = Object.keys(fileTypeFilters) as Array<
+				keyof typeof fileTypeFilters
+			>;
+
 			if (filterKeys.some((key) => fileTypeFilters[key])) {
 				// If any fileType filter is active
 				if (
