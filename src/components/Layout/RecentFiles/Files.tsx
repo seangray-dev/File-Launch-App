@@ -6,6 +6,7 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import {
+	pauseAudio,
 	playAudio,
 	setCurrentFile,
 	togglePlay,
@@ -36,24 +37,35 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 	);
 	const dispatch: AppDispatch = useDispatch();
 
-	const handlePlay = (idx: number = 0) => {
+	const handlePlay = (idx: number) => {
+		console.log(
+			'handlePlay called, isPlaying:',
+			isPlaying,
+			'activeFileIndex:',
+			activeFileIndex
+		);
+
 		if (activeFileIndex === idx) {
-			dispatch(togglePlay());
+			if (isPlaying) {
+				console.log('Pausing audio');
+				dispatch(pauseAudio()).catch((err) =>
+					console.error('Failed to pause audio:', err)
+				);
+			} else {
+				console.log('Resuming audio');
+				dispatch(playAudio(filteredFiles[idx].path)).catch((err) =>
+					console.error('Failed to play audio:', err)
+				);
+			}
 		} else {
+			console.log('Changing file and playing');
 			const fileName = filteredFiles[idx].name;
 			const filePath = filteredFiles[idx].path;
 			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
 
-			// Use the Redux thunk instead of directly invoking
-			// Unsure of this error here...
-			// Expected 0 arguments, but got 1.
 			dispatch(playAudio(filePath)).catch((err) =>
 				console.error('Failed to play audio:', err)
 			);
-
-			if (!isPlaying) {
-				dispatch(togglePlay());
-			}
 		}
 	};
 

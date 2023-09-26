@@ -13,6 +13,18 @@ export const playAudio = createAsyncThunk(
 	}
 );
 
+export const pauseAudio = createAsyncThunk(
+	'audio/pause',
+	async (_, { dispatch }) => {
+		try {
+			const result = await invoke('pause_audio');
+			return result;
+		} catch (error) {
+			throw error;
+		}
+	}
+);
+
 type CurrentFileState = {
 	isPlaying: boolean;
 	activeFileIndex: number | null;
@@ -57,12 +69,20 @@ export const currentFile = createSlice({
 				// Handle pending state if needed, like setting a loading flag
 			})
 			.addCase(playAudio.fulfilled, (state, action) => {
-				// The promise is resolved and we get the result in `action.payload`
+				console.log('playAudio fulfilled');
 				state.isPlaying = true;
 			})
 			.addCase(playAudio.rejected, (state, action) => {
-				// The promise is rejected and we get the error in `action.error`
+				console.log('playAudio rejected');
 				state.isPlaying = false;
+			})
+			.addCase(pauseAudio.fulfilled, (state, action) => {
+				console.log('pauseAudio fulfilled');
+				state.isPlaying = false;
+			})
+			.addCase(pauseAudio.rejected, (state, action) => {
+				console.log('pauseAudio rejected');
+				state.isPlaying = true;
 			});
 	},
 });

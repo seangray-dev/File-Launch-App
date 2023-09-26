@@ -52,7 +52,7 @@ fn main() {
     });
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels, play_audio])
+        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels, play_audio, pause_audio])
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .run(tauri::generate_context!())
@@ -243,7 +243,7 @@ fn play_audio(path: String) -> Result<String, String> {
         println!("Is sink empty before play: {}", sink.empty());
 
         println!("About to play the audio...");
-        sink.set_volume(1.0);
+        sink.set_volume(0.1);
         sink.play();
         println!("Audio should be playing now...");
 
@@ -264,3 +264,34 @@ fn play_audio(path: String) -> Result<String, String> {
 
     Ok("Playback thread spawned".to_string())
 }
+
+#[tauri::command]
+fn pause_audio() -> Result<String, String> {
+    // Check if audio is currently playing
+    if IS_PLAYING.load(Ordering::SeqCst) {
+        let global_sink = GLOBAL_SINK.lock().unwrap();
+        if let Some(current_sink) = global_sink.as_ref() {
+            // Pause the currently playing audio
+            current_sink.pause();
+
+            // Update the IS_PLAYING flag to false
+            IS_PLAYING.store(false, Ordering::SeqCst);
+            return Ok("Audio paused".to_string());
+        } else {
+            return Err("No active audio to pause".to_string());
+        }
+    } else {
+        let global_sink = GLOBAL_SINK.lock().unwrap();
+        if let Some(current_sink) = global_sink.as_ref() {
+            // Resume the paused audio
+            current_sink.play();
+
+            // Update the IS_PLAYING flag to true
+            IS_PLAYING.store(true, Ordering::SeqCst);
+            return Ok("Audio resumed".to_string());
+        } else {
+            return Err("No paused audio to resume".to_string());
+        }
+    }
+}
+

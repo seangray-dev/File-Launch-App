@@ -11,6 +11,9 @@ const FileTableRow: React.FC<FileTableRowProps> = ({
 	setHoveredRowIndex,
 	hoveredRowIndex,
 }) => {
+	console.log(
+		`Row ${idx} - isPlaying: ${isPlaying}, activeFileIndex: ${activeFileIndex}`
+	);
 	return (
 		<TableRow
 			className='grid grid-cols-[30px_1fr_1fr_100px] relative'
@@ -30,8 +33,10 @@ const FileTableRow: React.FC<FileTableRowProps> = ({
 					</div>
 				)}
 			</TableCell>
-			<TableCell className='flex items-center'>{file.name}</TableCell>
-			<TableCell className='col-span-2 text-muted-foreground'>
+			<TableCell className='flex items-center select-none cursor-default'>
+				{file.name}
+			</TableCell>
+			<TableCell className='col-span-2 text-muted-foreground select-none cursor-default'>
 				{file.parent}
 			</TableCell>
 		</TableRow>
