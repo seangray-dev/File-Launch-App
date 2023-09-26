@@ -45,3 +45,8 @@ export interface FileTableRowProps {
 	setHoveredRowIndex: (index: number | null) => void;
 	hoveredRowIndex: number | null;
 }
+
+export interface FilesProps {
+	recentFiles: FileObject[];
+	areFilesChecked: boolean;
+}

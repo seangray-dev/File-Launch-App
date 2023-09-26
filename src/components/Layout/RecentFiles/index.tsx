@@ -5,11 +5,16 @@ import { useFetchFiles } from './useFetchFiles';
 
 const RecentFiles = () => {
 	const savedBaseFolder = window.localStorage.getItem('baseFolder') || '';
-	const { areFilesChecked } = useFetchFiles(savedBaseFolder);
+	const { areFilesChecked, recentFiles } = useFetchFiles(savedBaseFolder);
 
 	return (
 		<div className='dark:text-white'>
-			{!savedBaseFolder ? <NoBaseFolder /> : <Files />}
+			{!savedBaseFolder ? (
+				<NoBaseFolder />
+			) : (
+				<Files recentFiles={recentFiles} areFilesChecked={areFilesChecked} />
+			)}
+
 			{!areFilesChecked && (
 				<div className='flex justify-center items-center h-32'>
 					<Loader2 className='h-10 w-10 animate-spin' />

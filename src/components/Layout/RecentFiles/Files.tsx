@@ -11,16 +11,14 @@ import {
 	togglePlay,
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
+import { FilesProps } from '@/types';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import FileTableRow from './FileTableRow';
 import { FilterDropdown } from './FilterDropdown';
-import { useFetchFiles } from './useFetchFiles';
 import { useFileFilters } from './useFileFilters';
 
-const Files = () => {
-	const savedBaseFolder = window.localStorage.getItem('baseFolder') || '';
-	const { recentFiles, areFilesChecked } = useFetchFiles(savedBaseFolder);
+const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 	const [hoveredRowIndex, setHoveredRowIndex] = useState<number | null>(null);
 	const {
 		lastModifiedFilters,
