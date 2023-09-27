@@ -1,23 +1,7 @@
+import { audioContext, blobCache, fetchLocalFile } from '@/utils/audioUtils';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { readBinaryFile } from '@tauri-apps/api/fs';
+import { RootState } from '../store';
 
-// Helper function to convert an array buffer to a Blob
-const arrayBufferToBlob = (buffer: ArrayBuffer, type: string): Blob => {
-	return new Blob([buffer], { type: type });
-};
-
-// Function to fetch a local file
-const fetchLocalFile = async (path: string) => {
-	const arrayBuffer = await readBinaryFile(path);
-
-	// Create Blob object from the array buffer
-	const blob = arrayBufferToBlob(arrayBuffer, 'audio/mpeg');
-
-	return blob;
-};
-
-// Initialize Web Audio API
-const audioContext = new window.AudioContext();
 let audioBuffer: AudioBuffer | null = null;
 let audioSource: AudioBufferSourceNode | undefined;
 
@@ -51,33 +35,45 @@ export const loadAudio = createAsyncThunk(
 export const createObjectUrlFromPath = createAsyncThunk(
 	'audio/createObjectUrl',
 	async (path: string) => {
-		try {
-			const fileBlob = await fetchLocalFile(path);
-			const objectUrl = URL.createObjectURL(fileBlob);
-			return objectUrl;
-		} catch (error) {
-			throw error;
+		let fileBlob: Blob;
+
+		if (blobCache[path]) {
+			fileBlob = blobCache[path];
+		} else {
+			fileBlob = await fetchLocalFile(path);
+			blobCache[path] = fileBlob;
 		}
+
+		const objectUrl = URL.createObjectURL(fileBlob);
+		return objectUrl;
 	}
 );
 
-export const playAudio = createAsyncThunk('audio/play', async () => {
-	// Stop the currently playing audio if any
-	if (audioSource) {
-		audioSource.stop();
-	}
+export const playAudio = createAsyncThunk(
+	'audio/play',
+	async (_, { getState }) => {
+		const state = getState() as RootState;
+		const objectUrl = state.currentFile.objectUrl;
 
-	// Create a new audio source
-	audioSource = audioContext.createBufferSource();
+		if (!objectUrl) return false; // Check if objectUrl is available
 
-	if (audioBuffer) {
+		if (audioSource) {
+			audioSource.stop();
+		}
+
+		const response = await fetch(objectUrl);
+		const arrayBuffer = await response.arrayBuffer();
+
+		audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+		audioSource = audioContext.createBufferSource();
 		audioSource.buffer = audioBuffer;
 		audioSource.connect(audioContext.destination);
 		audioSource.start(0);
+
 		return true; // Return true to indicate successful playback
 	}
-	return false; // Return false if audioBuffer is null
-});
+);
 
 export const pauseAudio = createAsyncThunk('audio/pause', async () => {
 	if (audioSource) {
@@ -137,7 +133,6 @@ export const currentFile = createSlice({
 				state.objectUrl = action.payload;
 			})
 			.addCase(loadAudio.fulfilled, (state, action) => {
-				state.duration = action.payload;
 				state.objectUrl = action.payload;
 			})
 			.addCase(playAudio.fulfilled, (state) => {

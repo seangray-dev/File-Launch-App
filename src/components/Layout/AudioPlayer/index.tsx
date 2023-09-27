@@ -1,5 +1,6 @@
 import { Slider } from '@/components/ui/slider';
 import { togglePlay } from '@/redux/features/currentFile-slice';
+import { RootState } from '@/redux/store';
 import { invoke } from '@tauri-apps/api';
 import {
 	PauseCircleIcon,
@@ -16,11 +17,12 @@ import ProgressSlider from './ProgressSlider';
 
 const AudioPlayer = () => {
 	const dispatch = useDispatch();
-	// const isPlaying = useSelector((state) => state.currentFile.isPlaying);
-	const currentFileName = useSelector((state) => state.currentFile.name);
+	const currentFileName = useSelector(
+		(state: RootState) => state.currentFile.name
+	);
 	const [volume, setVolume] = useState([50]);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
-	const { objectUrl, isPlaying } = useSelector((state) => state.currentFile);
+	const { isPlaying } = useSelector((state: RootState) => state.currentFile);
 
 	const handleVolumeChange = (value: number[]) => {
 		setVolume(value);
@@ -66,7 +68,6 @@ const AudioPlayer = () => {
 
 	return (
 		<section className='grid grid-cols-3 bg-secondary py-6 px-4 items-center relative'>
-			<audio src={objectUrl} autoPlay={isPlaying} />
 			<ProgressSlider />
 			<div className='text-sm'>{currentFileName}</div>
 			<div className='flex items-center gap-4 justify-center'>
