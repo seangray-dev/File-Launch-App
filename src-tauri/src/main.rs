@@ -15,6 +15,7 @@ use once_cell::sync::Lazy;
 use std::sync:: Mutex;
 
 
+
 // Global Mutex-wrapped variable to hold preloaded files
 static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy::new(|| Mutex::new(None));
 
@@ -41,7 +42,7 @@ fn main() {
     });
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels])
+        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels, load_audio_file])
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .run(tauri::generate_context!())
@@ -106,7 +107,7 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
                         file_obj.insert("parent".to_string(), parent_str.to_string());
                     }
                 }
-                
+
                 // Add path
                 if let Some(path_str) = path.to_str() {
                     file_obj.insert("path".to_string(), path_str.to_string());
@@ -123,16 +124,25 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
                 // Add file type (extension)
                 if let Some(ext) = path.extension() {
                     if let Some(ext_str) = ext.to_str() {
-                        file_obj.insert("fileType".to_string(), ext_str.to_string());
+                        // Check for mp3 or wav
+                        if ext_str == "mp3" || ext_str == "wav" {
+                            file_obj.insert("fileType".to_string(), ext_str.to_string());
+
+                            // Check if the file is stereo
+                            let channels = check_audio_channels(path.to_str().unwrap().to_string());
+                            if channels == "stereo" {
+
+                                files.push(file_obj);
+                            }
+                        }
                     }
                 }
-                
-                files.push(file_obj);
             }
         }
     }
     Ok(())
 }
+
 
 
 #[tauri::command]
@@ -155,6 +165,18 @@ fn check_audio_channels(path: String) -> String {
     } else {
         format!("{} channels", channels)
     }
+}
+
+#[tauri::command]
+async fn load_audio_file(path: String) -> tauri::Result<Vec<u8>> {
+  use std::io::Read;
+
+  let mut file = File::open(path)?;
+  let metadata = file.metadata()?;
+  let mut buffer = Vec::with_capacity(metadata.len() as usize + 1);
+  file.read_to_end(&mut buffer)?;
+
+  Ok(buffer)
 }
 
 
