@@ -4,6 +4,8 @@ import { RootState } from '../store';
 
 let audioBuffer: AudioBuffer | null = null;
 let audioSource: AudioBufferSourceNode | undefined;
+let offsetTime = 0;
+let startTime = 0;
 
 export const loadAudio = createAsyncThunk(
 	'audio/load',
@@ -12,6 +14,10 @@ export const loadAudio = createAsyncThunk(
 			if (!path) {
 				throw new Error('Path is not defined');
 			}
+
+			// Reset the offsetTime and startTime
+			offsetTime = 0;
+			startTime = 0;
 
 			// Dispatch the createObjectUrlFromPath thunk and await its completion
 			const action = await dispatch(createObjectUrlFromPath(path));
@@ -55,7 +61,7 @@ export const playAudio = createAsyncThunk(
 		const state = getState() as RootState;
 		const objectUrl = state.currentFile.objectUrl;
 
-		if (!objectUrl) return false; // Check if objectUrl is available
+		if (!objectUrl) return false;
 
 		if (audioSource) {
 			audioSource.stop();
@@ -63,23 +69,25 @@ export const playAudio = createAsyncThunk(
 
 		const response = await fetch(objectUrl);
 		const arrayBuffer = await response.arrayBuffer();
-
 		audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
 		audioSource = audioContext.createBufferSource();
 		audioSource.buffer = audioBuffer;
 		audioSource.connect(audioContext.destination);
-		audioSource.start(0);
 
-		return true; // Return true to indicate successful playback
+		startTime = audioContext.currentTime - offsetTime; // Keep track of when we started
+		audioSource.start(startTime, offsetTime);
+
+		return true;
 	}
 );
 
 export const pauseAudio = createAsyncThunk('audio/pause', async () => {
 	if (audioSource) {
+		offsetTime = audioContext.currentTime - startTime; // Calculate how much time passed
 		audioSource.stop();
 	}
-	return false; // Return false to indicate successful pause
+	return false;
 });
 
 type CurrentFileState = {
