@@ -6,6 +6,7 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import {
+	loadAudio,
 	pauseAudio,
 	playAudio,
 	setCurrentFile,
@@ -37,7 +38,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 	);
 	const dispatch: AppDispatch = useDispatch();
 
-	const handlePlay = (idx: number) => {
+	const handlePlay = async (idx: number) => {
 		console.log(
 			'handlePlay called, isPlaying:',
 			isPlaying,
@@ -53,7 +54,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 				);
 			} else {
 				console.log('Resuming audio');
-				dispatch(playAudio(filteredFiles[idx].path)).catch((err) =>
+				dispatch(playAudio()).catch((err) =>
 					console.error('Failed to play audio:', err)
 				);
 			}
@@ -61,9 +62,18 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 			console.log('Changing file and playing');
 			const fileName = filteredFiles[idx].name;
 			const filePath = filteredFiles[idx].path;
+
+			// Load the new audio file
+			try {
+				await dispatch(loadAudio(filePath));
+			} catch (error) {
+				console.error('Failed to load audio:', error);
+				return;
+			}
+
 			dispatch(setCurrentFile({ activeFileIndex: idx, name: fileName }));
 
-			dispatch(playAudio(filePath)).catch((err) =>
+			dispatch(playAudio()).catch((err) =>
 				console.error('Failed to play audio:', err)
 			);
 		}

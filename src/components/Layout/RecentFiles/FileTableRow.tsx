@@ -11,9 +11,6 @@ const FileTableRow: React.FC<FileTableRowProps> = ({
 	setHoveredRowIndex,
 	hoveredRowIndex,
 }) => {
-	console.log(
-		`Row ${idx} - isPlaying: ${isPlaying}, activeFileIndex: ${activeFileIndex}`
-	);
 	return (
 		<TableRow
 			className='grid grid-cols-[30px_1fr_1fr_100px] relative'

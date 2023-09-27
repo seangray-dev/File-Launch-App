@@ -12,13 +12,15 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import ProgressSlider from './ProgressSlider';
 
 const AudioPlayer = () => {
 	const dispatch = useDispatch();
-	const isPlaying = useSelector((state) => state.currentFile.isPlaying);
+	// const isPlaying = useSelector((state) => state.currentFile.isPlaying);
 	const currentFileName = useSelector((state) => state.currentFile.name);
 	const [volume, setVolume] = useState([50]);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
+	const { objectUrl, isPlaying } = useSelector((state) => state.currentFile);
 
 	const handleVolumeChange = (value: number[]) => {
 		setVolume(value);
@@ -63,7 +65,9 @@ const AudioPlayer = () => {
 	const playPauseTitle = isPlaying ? 'Pause' : 'Play';
 
 	return (
-		<section className='grid grid-cols-3 bg-secondary py-6 px-4 items-center'>
+		<section className='grid grid-cols-3 bg-secondary py-6 px-4 items-center relative'>
+			<audio src={objectUrl} autoPlay={isPlaying} />
+			<ProgressSlider />
 			<div className='text-sm'>{currentFileName}</div>
 			<div className='flex items-center gap-4 justify-center'>
 				<span title='Previous'>
