@@ -115,10 +115,7 @@ export const updatePlaybackPosition = createAsyncThunk(
 export const updateVolume = createAsyncThunk<number, number>(
 	'audio/updateVolume',
 	async (volume: number) => {
-		console.log('updateVolume called', volume);
-		console.log('Gain Node in updateVolume:', gainNode);
 		gainNode.gain.value = volume / 100;
-		console.log('Updated gain value:', gainNode.gain.value);
 		return volume;
 	}
 );

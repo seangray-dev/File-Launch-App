@@ -25,7 +25,6 @@ const AudioPlayer = () => {
 	const { isPlaying } = useSelector((state: RootState) => state.currentFile);
 
 	const handleVolumeChange = (value: number[]) => {
-		console.log('Slider value: ', value);
 		const newVolume = value[0];
 		setVolume(newVolume);
 		dispatch(updateVolume(newVolume));

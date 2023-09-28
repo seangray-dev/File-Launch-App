@@ -38,27 +38,17 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 	const dispatch: AppDispatch = useDispatch();
 
 	const handlePlay = async (idx: number) => {
-		console.log(
-			'handlePlay called, isPlaying:',
-			isPlaying,
-			'activeFileIndex:',
-			activeFileIndex
-		);
-
 		if (activeFileIndex === idx) {
 			if (isPlaying) {
-				console.log('Pausing audio');
 				dispatch(pauseAudio()).catch((err) =>
 					console.error('Failed to pause audio:', err)
 				);
 			} else {
-				console.log('Resuming audio');
 				dispatch(playAudio()).catch((err) =>
 					console.error('Failed to play audio:', err)
 				);
 			}
 		} else {
-			console.log('Changing file and playing');
 			const fileName = filteredFiles[idx].name;
 			const filePath = filteredFiles[idx].path;
 
