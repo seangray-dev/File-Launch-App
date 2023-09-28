@@ -2,10 +2,11 @@ import { audioContext, blobCache, fetchLocalFile } from '@/utils/audioUtils';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-let audioBuffer: AudioBuffer | null = null;
-let audioSource: AudioBufferSourceNode | undefined;
-let offsetTime = 0;
-let startTime = 0;
+export let offsetTime = 0;
+export let startTime = 0;
+
+export let audioBuffer: AudioBuffer | null = null;
+export let audioSource: AudioBufferSourceNode | undefined;
 
 export const loadAudio = createAsyncThunk(
 	'audio/load',
@@ -89,6 +90,23 @@ export const pauseAudio = createAsyncThunk('audio/pause', async () => {
 	}
 	return false;
 });
+
+export const updatePlaybackPosition = createAsyncThunk(
+	'audio/updatePlaybackPosition',
+	async (newTime: number) => {
+		offsetTime = newTime;
+		if (audioSource) {
+			audioSource.stop();
+		}
+
+		audioSource = audioContext.createBufferSource();
+		audioSource.buffer = audioBuffer;
+		audioSource.connect(audioContext.destination);
+
+		startTime = audioContext.currentTime - offsetTime;
+		audioSource.start(startTime, offsetTime);
+	}
+);
 
 type CurrentFileState = {
 	isPlaying: boolean;
