@@ -1,5 +1,6 @@
 import { Slider } from '@/components/ui/slider';
-import { togglePlay, updateVolume } from '@/redux/features/currentFile-slice';
+import { TooltipIcon } from '@/components/ui/tooltipicon';
+import { pauseAudio, updateVolume } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { invoke } from '@tauri-apps/api';
 import {
@@ -50,27 +51,41 @@ const AudioPlayer = () => {
 		);
 	};
 
-	let VolumeIcon;
-	let volumeTitle;
-	const currentVolume = volume;
-	if (currentVolume === 0) {
-		VolumeIcon = <VolumeXIcon size={28} onClick={toggleMute} />;
-		volumeTitle = 'Unmute';
-	} else if (currentVolume < 50) {
-		VolumeIcon = <Volume1Icon size={28} onClick={toggleMute} />;
-		volumeTitle = 'Mute';
-	} else {
-		VolumeIcon = <Volume2Icon size={28} onClick={toggleMute} />;
-		volumeTitle = 'Mute';
-	}
+	const VOLUME_THRESHOLD = 50;
 
-	const PlayPauseIcon = isPlaying ? (
-		<PauseCircleIcon size={32} onClick={togglePlayPause} />
-	) : (
-		<PlayCircleIcon size={32} onClick={togglePlayPause} />
-	);
+	const getVolumeIcon = () => {
+		if (volume === 0) {
+			return (
+				<TooltipIcon tooltipText='Unmute'>
+					<VolumeXIcon size={28} onClick={toggleMute} />
+				</TooltipIcon>
+			);
+		}
+		if (volume < VOLUME_THRESHOLD) {
+			return (
+				<TooltipIcon tooltipText='Mute'>
+					<Volume1Icon size={28} onClick={toggleMute} />
+				</TooltipIcon>
+			);
+		}
+		return (
+			<TooltipIcon tooltipText='Mute'>
+				<Volume2Icon size={28} onClick={toggleMute} />
+			</TooltipIcon>
+		);
+	};
 
-	const playPauseTitle = isPlaying ? 'Pause' : 'Play';
+	const getPlayPauseIcon = () => {
+		return isPlaying ? (
+			<TooltipIcon tooltipText='Pause'>
+				<PauseCircleIcon size={32} onClick={togglePlayPause} />
+			</TooltipIcon>
+		) : (
+			<TooltipIcon tooltipText='Play'>
+				<PlayCircleIcon size={32} onClick={togglePlayPause} />
+			</TooltipIcon>
+		);
+	};
 
 	return (
 		<section className='bg-secondary py-6 relative'>
@@ -80,29 +95,25 @@ const AudioPlayer = () => {
 					{currentFileName}
 				</div>
 				<div className='flex items-center gap-4 justify-center'>
-					<span title='Previous'>
+					<TooltipIcon tooltipText='Previous'>
 						<SkipBackIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors'
 							size={20}
 						/>
+					</TooltipIcon>
+					<span className='hover:scale-105 dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-all'>
+						{getPlayPauseIcon()}
 					</span>
-					<span
-						className='hover:scale-105 dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-all'
-						title={playPauseTitle}>
-						{PlayPauseIcon}
-					</span>
-					<span title='Next'>
+					<TooltipIcon tooltipText='Next'>
 						<SkipForwardIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors'
 							size={20}
 						/>
-					</span>
+					</TooltipIcon>
 				</div>
 				<div className='flex gap-2 justify-end'>
-					<span
-						className='text-black-muted hover:text-black dark:text-white-muted dark:hover:text-white duration-300 transition-colors'
-						title={volumeTitle}>
-						{VolumeIcon}
+					<span className='text-black-muted hover:text-black dark:text-white-muted dark:hover:text-white duration-300 transition-colors'>
+						{getVolumeIcon()}
 					</span>
 					<Slider
 						className='w-1/2'
