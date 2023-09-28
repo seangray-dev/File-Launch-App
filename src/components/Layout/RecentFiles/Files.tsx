@@ -100,6 +100,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 				{areFilesChecked && filteredFiles.length > 0
 					? filteredFiles.map((file, idx) => (
 							<FileTableRow
+								key={idx}
 								file={file}
 								idx={idx}
 								handlePlay={handlePlay}
