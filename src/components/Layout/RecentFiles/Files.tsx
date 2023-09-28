@@ -10,7 +10,6 @@ import {
 	pauseAudio,
 	playAudio,
 	setCurrentFile,
-	togglePlay,
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { FilesProps } from '@/types';
