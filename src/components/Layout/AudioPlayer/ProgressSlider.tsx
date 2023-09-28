@@ -1,4 +1,4 @@
-import { Slider } from '@/components/ui/slider';
+import { AudioSlider } from '@/components/ui/audioslider';
 import {
 	audioBuffer,
 	offsetTime,
@@ -60,7 +60,7 @@ const ProgressSlider = () => {
 
 	return (
 		<div className='w-full absolute top-0'>
-			<Slider
+			<AudioSlider
 				className='w-full'
 				value={[currentTime]}
 				min={0}
