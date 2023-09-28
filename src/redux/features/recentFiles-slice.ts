@@ -1,10 +1,15 @@
 import { FileObject } from '@/types';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { invoke } from '@tauri-apps/api';
+import { RootState } from '../store';
 
 export const fetchFiles = createAsyncThunk(
 	'files/fetchFiles',
-	async (baseFolder: string, { rejectWithValue }) => {
+	async (baseFolder: string, { getState, rejectWithValue }) => {
+		const { files } = (getState() as RootState).recentFiles;
+		if (files.length > 0) {
+			return files;
+		}
 		try {
 			let files: FileObject[] = await invoke('scan_directory', { baseFolder });
 			for (const file of files) {
