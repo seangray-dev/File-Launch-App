@@ -1,12 +1,12 @@
 import { AudioSlider } from '@/components/ui/audioslider';
 import {
 	audioBuffer,
+	audioContext,
 	offsetTime,
 	startTime,
 	updatePlaybackPosition,
 } from '@/redux/features/currentFile-slice';
 import { RootState } from '@/redux/store';
-import { audioContext } from '@/utils/audioUtils';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

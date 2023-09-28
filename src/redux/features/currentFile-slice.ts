@@ -1,10 +1,13 @@
-import { audioContext, blobCache, fetchLocalFile } from '@/utils/audioUtils';
+import { blobCache, fetchLocalFile } from '@/utils/audioUtils';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
+// Initialize Web Audio API
+export const audioContext = new window.AudioContext();
+let gainNode: GainNode = audioContext.createGain();
+
 export let offsetTime = 0;
 export let startTime = 0;
-
 export let audioBuffer: AudioBuffer | null = null;
 export let audioSource: AudioBufferSourceNode | undefined;
 
@@ -74,7 +77,8 @@ export const playAudio = createAsyncThunk(
 
 		audioSource = audioContext.createBufferSource();
 		audioSource.buffer = audioBuffer;
-		audioSource.connect(audioContext.destination);
+		audioSource.connect(gainNode);
+		gainNode.connect(audioContext.destination);
 
 		startTime = audioContext.currentTime - offsetTime; // Keep track of when we started
 		audioSource.start(startTime, offsetTime);
@@ -101,10 +105,21 @@ export const updatePlaybackPosition = createAsyncThunk(
 
 		audioSource = audioContext.createBufferSource();
 		audioSource.buffer = audioBuffer;
-		audioSource.connect(audioContext.destination);
+		audioSource.connect(gainNode).connect(audioContext.destination);
 
 		startTime = audioContext.currentTime - offsetTime;
 		audioSource.start(startTime, offsetTime);
+	}
+);
+
+export const updateVolume = createAsyncThunk<number, number>(
+	'audio/updateVolume',
+	async (volume: number) => {
+		console.log('updateVolume called', volume);
+		console.log('Gain Node in updateVolume:', gainNode);
+		gainNode.gain.value = volume / 100;
+		console.log('Updated gain value:', gainNode.gain.value);
+		return volume;
 	}
 );
 
@@ -115,6 +130,7 @@ type CurrentFileState = {
 	path: string;
 	duration: number | null;
 	objectUrl: string | null;
+	volume: number | null;
 };
 
 const initialState: CurrentFileState = {
@@ -124,6 +140,7 @@ const initialState: CurrentFileState = {
 	path: '',
 	duration: null,
 	objectUrl: null,
+	volume: null,
 };
 
 export const currentFile = createSlice({
@@ -166,6 +183,9 @@ export const currentFile = createSlice({
 			})
 			.addCase(pauseAudio.fulfilled, (state) => {
 				state.isPlaying = false;
+			})
+			.addCase(updateVolume.fulfilled, (state, action) => {
+				state.volume = action.payload;
 			});
 	},
 });

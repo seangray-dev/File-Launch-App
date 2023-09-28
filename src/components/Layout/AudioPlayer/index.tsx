@@ -1,6 +1,6 @@
 import { Slider } from '@/components/ui/slider';
-import { togglePlay } from '@/redux/features/currentFile-slice';
-import { RootState } from '@/redux/store';
+import { togglePlay, updateVolume } from '@/redux/features/currentFile-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 import { invoke } from '@tauri-apps/api';
 import {
 	PauseCircleIcon,
@@ -16,24 +16,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import ProgressSlider from './ProgressSlider';
 
 const AudioPlayer = () => {
-	const dispatch = useDispatch();
+	const dispatch: AppDispatch = useDispatch();
 	const currentFileName = useSelector(
 		(state: RootState) => state.currentFile.name
 	);
-	const [volume, setVolume] = useState([50]);
+	const [volume, setVolume] = useState(50);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
 	const { isPlaying } = useSelector((state: RootState) => state.currentFile);
 
 	const handleVolumeChange = (value: number[]) => {
-		setVolume(value);
+		console.log('Slider value: ', value);
+		const newVolume = value[0];
+		setVolume(newVolume);
+		dispatch(updateVolume(newVolume));
 	};
 
 	const toggleMute = () => {
-		if (volume[0] === 0 && previousVolume !== null) {
-			setVolume([previousVolume]);
+		if (volume === 0 && previousVolume !== null) {
+			// Unmute
+			setVolume(previousVolume);
+			dispatch(updateVolume(previousVolume));
 		} else {
-			setPreviousVolume(volume[0]);
-			setVolume([0]);
+			// Mute
+			setPreviousVolume(volume);
+			setVolume(0);
+			dispatch(updateVolume(0));
 		}
 	};
 
@@ -46,7 +53,7 @@ const AudioPlayer = () => {
 
 	let VolumeIcon;
 	let volumeTitle;
-	const currentVolume = volume[0];
+	const currentVolume = volume;
 	if (currentVolume === 0) {
 		VolumeIcon = <VolumeXIcon size={28} onClick={toggleMute} />;
 		volumeTitle = 'Unmute';
@@ -100,7 +107,7 @@ const AudioPlayer = () => {
 					</span>
 					<Slider
 						className='w-1/2'
-						value={volume}
+						value={[volume]}
 						min={0}
 						max={100}
 						step={1}

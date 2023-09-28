@@ -9,6 +9,3 @@ export const fetchLocalFile = async (path: string) => {
 	const blob = new Blob([arrayBuffer.buffer], { type: 'audio/mpeg' });
 	return blob;
 };
-
-// Initialize Web Audio API
-export const audioContext = new window.AudioContext();

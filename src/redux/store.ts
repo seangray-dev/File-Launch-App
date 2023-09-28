@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import currentFile from './features/currentFile-slice';
 import recentFiles from './features/recentFiles-slice';
-
 export const store = configureStore({
 	reducer: {
 		currentFile,
