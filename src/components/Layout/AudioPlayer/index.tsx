@@ -1,8 +1,12 @@
 import { Slider } from '@/components/ui/slider';
 import { TooltipIcon } from '@/components/ui/tooltipicon';
-import { pauseAudio, updateVolume } from '@/redux/features/currentFile-slice';
+import {
+	pauseAudio,
+	playAudio,
+	updateVolume,
+} from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
-import { invoke } from '@tauri-apps/api';
+
 import {
 	PauseCircleIcon,
 	PlayCircleIcon,
@@ -44,11 +48,12 @@ const AudioPlayer = () => {
 		}
 	};
 
-	const togglePlayPause = () => {
-		dispatch(togglePlay());
-		invoke('play_audio', { path: currentFileName }).catch((err) =>
-			console.error('Failed to play audio:', err)
-		);
+	const togglePlayPause = async () => {
+		if (isPlaying) {
+			await dispatch(pauseAudio());
+		} else {
+			await dispatch(playAudio());
+		}
 	};
 
 	const VOLUME_THRESHOLD = 50;
