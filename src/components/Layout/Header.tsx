@@ -4,6 +4,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
+
 import {
 	ArrowLeftOnRectangleIcon,
 	BellIcon,
@@ -11,8 +12,14 @@ import {
 	MagnifyingGlassIcon,
 	UserIcon,
 } from '@heroicons/react/24/solid';
+import { HeaderIcon } from '../ui/headericon';
 
-const Header = ({ setCurrentView, logout }) => {
+type HeaderProps = {
+	setCurrentView: (view: string) => void;
+	logout: () => void;
+};
+
+const Header = ({ setCurrentView, logout }: HeaderProps) => {
 	return (
 		<header className='p-4 border-b border-gray/10'>
 			<ul className='flex gap-2 items-center justify-end'>
@@ -35,62 +42,22 @@ const Header = ({ setCurrentView, logout }) => {
 						/>
 					</TooltipProvider>
 				</li>
-				<li onClick={() => setCurrentView('User Profile')}>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<span className='hover:text-primary transition-all duration-300 cursor-pointer'>
-									<UserIcon className='w-6' />
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Profile</p>
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</li>
-				<li onClick={() => setCurrentView('Settings')}>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<span className='hover:text-primary transition-all duration-300 cursor-pointer'>
-									<Cog6ToothIcon className='w-6' />
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Settings</p>
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</li>
-				<li>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<span className='hover:text-primary transition-all duration-300 cursor-pointer'>
-									<BellIcon className='w-6' />
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Notifications</p>
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</li>
-				<li onClick={logout}>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<span className='hover:text-primary transition-all duration-300 cursor-pointer'>
-									<ArrowLeftOnRectangleIcon className='w-6' />
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Logout</p>
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</li>
+				<HeaderIcon
+					tooltipText='Profile'
+					onClick={() => setCurrentView('User Profile')}>
+					<UserIcon className='w-6 -mb-1' />
+				</HeaderIcon>
+				<HeaderIcon
+					tooltipText='Settings'
+					onClick={() => setCurrentView('Settings')}>
+					<Cog6ToothIcon className='w-6 -mb-1' />
+				</HeaderIcon>
+				<HeaderIcon tooltipText='Notifications'>
+					<BellIcon className='w-6 -mb-1' />
+				</HeaderIcon>
+				<HeaderIcon tooltipText='Logout' onClick={logout}>
+					<ArrowLeftOnRectangleIcon className='w-6 -mb-1' />
+				</HeaderIcon>
 			</ul>
 		</header>
 	);
