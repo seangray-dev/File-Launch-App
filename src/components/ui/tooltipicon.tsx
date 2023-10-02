@@ -14,9 +14,7 @@ export const TooltipIcon = ({ children, tooltipText }: TooltipIconProps) => (
 	<TooltipProvider>
 		<Tooltip>
 			<TooltipTrigger>{children}</TooltipTrigger>
-			<TooltipContent>
-				<p>{tooltipText}</p>
-			</TooltipContent>
+			<TooltipContent>{tooltipText}</TooltipContent>
 		</Tooltip>
 	</TooltipProvider>
 );

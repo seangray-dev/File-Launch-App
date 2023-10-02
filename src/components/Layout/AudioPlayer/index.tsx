@@ -62,20 +62,20 @@ const AudioPlayer = () => {
 		if (volume === 0) {
 			return (
 				<TooltipIcon tooltipText='Unmute'>
-					<VolumeXIcon size={28} onClick={toggleMute} />
+					<VolumeXIcon className='-mb-1' size={28} onClick={toggleMute} />
 				</TooltipIcon>
 			);
 		}
 		if (volume < VOLUME_THRESHOLD) {
 			return (
 				<TooltipIcon tooltipText='Mute'>
-					<Volume1Icon size={28} onClick={toggleMute} />
+					<Volume1Icon className='-mb-1' size={28} onClick={toggleMute} />
 				</TooltipIcon>
 			);
 		}
 		return (
 			<TooltipIcon tooltipText='Mute'>
-				<Volume2Icon size={28} onClick={toggleMute} />
+				<Volume2Icon className='-mb-1' size={28} onClick={toggleMute} />
 			</TooltipIcon>
 		);
 	};
@@ -102,7 +102,7 @@ const AudioPlayer = () => {
 				<div className='flex items-center gap-4 justify-center'>
 					<TooltipIcon tooltipText='Previous'>
 						<SkipBackIcon
-							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors'
+							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
 							size={20}
 						/>
 					</TooltipIcon>
@@ -111,7 +111,7 @@ const AudioPlayer = () => {
 					</span>
 					<TooltipIcon tooltipText='Next'>
 						<SkipForwardIcon
-							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors'
+							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
 							size={20}
 						/>
 					</TooltipIcon>
