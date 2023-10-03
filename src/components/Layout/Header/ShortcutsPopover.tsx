@@ -1,4 +1,3 @@
-import { HeaderIcon } from '@/components/ui/headericon';
 import {
 	Popover,
 	PopoverContent,
@@ -23,8 +22,17 @@ import {
 	Plus,
 	Space,
 } from 'lucide-react';
+import { ReactNode } from 'react';
 
-const ShortcutRow = ({ icon, functionDescription }) => (
+interface ShortcutRowProps {
+	icon: ReactNode;
+	functionDescription: string;
+}
+
+const ShortcutRow: React.FC<ShortcutRowProps> = ({
+	icon,
+	functionDescription,
+}) => (
 	<TableRow>
 		<TableCell className='p-2'>{icon}</TableCell>
 		<TableCell className='text-right'>{functionDescription}</TableCell>
