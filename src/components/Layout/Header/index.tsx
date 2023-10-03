@@ -12,7 +12,8 @@ import {
 	MagnifyingGlassIcon,
 	UserIcon,
 } from '@heroicons/react/24/solid';
-import { HeaderIcon } from '../ui/headericon';
+import { HeaderIcon } from '../../ui/headericon';
+import ShortcutsPopover from './ShortcutsPopover';
 
 type HeaderProps = {
 	setCurrentView: (view: string) => void;
@@ -42,7 +43,9 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 						/>
 					</TooltipProvider>
 				</li>
-				
+				<HeaderIcon tooltipText='Keyboard Shortcuts'>
+					<ShortcutsPopover />
+				</HeaderIcon>
 				<HeaderIcon
 					tooltipText='Profile'
 					onClick={() => setCurrentView('User Profile')}>
