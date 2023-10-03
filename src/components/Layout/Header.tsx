@@ -42,6 +42,7 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 						/>
 					</TooltipProvider>
 				</li>
+				
 				<HeaderIcon
 					tooltipText='Profile'
 					onClick={() => setCurrentView('User Profile')}>
