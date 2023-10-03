@@ -33,9 +33,9 @@ const SideBar = ({ setCurrentView }) => {
 				</li>
 				<li
 					className='flex gap-2 hover:text-primary hover:cursor-pointer transition-all duration-300'
-					onClick={() => setCurrentView('Clients')}>
+					onClick={() => setCurrentView('Recipients')}>
 					<UserGroupIcon className='w-6' />
-					<span>Clients</span>
+					<span>Recipients</span>
 				</li>
 				<li className='flex flex-col gap-4'>
 					<div className='flex gap-2 text-gray hover:text-primary hover:cursor-pointer transition-all duration-300'>

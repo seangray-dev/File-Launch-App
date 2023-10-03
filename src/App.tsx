@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import AudioPlayer from './components/Layout/AudioPlayer';
-import Clients from './components/Layout/Clients';
 import EmailTemplates from './components/Layout/EmailTemplates';
 import FormatFiles from './components/Layout/FormatFiles';
 import Header from './components/Layout/Header';
 import RecentFiles from './components/Layout/RecentFiles';
+import Recipients from './components/Layout/Recipients';
 import Settings from './components/Layout/Settings';
 import SideBar from './components/Layout/SideBar';
 import Stats from './components/Layout/Stats';
@@ -25,8 +25,8 @@ function App() {
 		case 'Recent Files':
 			componentInView = <RecentFiles />;
 			break;
-		case 'Clients':
-			componentInView = <Clients />;
+		case 'Recipients':
+			componentInView = <Recipients />;
 			break;
 		case 'Format Files':
 			componentInView = <FormatFiles />;
