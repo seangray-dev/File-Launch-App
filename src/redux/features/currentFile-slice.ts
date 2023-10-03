@@ -12,6 +12,7 @@ type CurrentFileState = {
 	duration: number | null;
 	objectUrl: string | null;
 	volume: number | null;
+	isRepeating: boolean;
 };
 
 const initialState: CurrentFileState = {
@@ -23,6 +24,7 @@ const initialState: CurrentFileState = {
 	duration: null,
 	objectUrl: null,
 	volume: null,
+	isRepeating: false,
 };
 
 // Initialize Web Audio API
@@ -261,6 +263,9 @@ export const currentFile = createSlice({
 		togglePlay: (state) => {
 			state.isPlaying = !state.isPlaying;
 		},
+		toggleRepeat: (state) => {
+			state.isRepeating = !state.isRepeating;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -293,6 +298,7 @@ export const {
 	resetCurrentFile,
 	togglePlay,
 	setFilteredFiles,
+	toggleRepeat,
 } = currentFile.actions;
 
 export default currentFile.reducer;

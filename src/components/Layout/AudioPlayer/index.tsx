@@ -8,10 +8,12 @@ import {
 import { AppDispatch, RootState } from '@/redux/store';
 
 import {
+	audioSource,
 	nextTrack,
 	prevTrack,
 	skipAhead,
 	skipBack,
+	toggleRepeat,
 } from '@/redux/features/currentFile-slice';
 import {
 	PauseCircleIcon,
@@ -25,18 +27,23 @@ import {
 	Volume2Icon,
 	VolumeXIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ProgressSlider from './ProgressSlider';
 
 const AudioPlayer = () => {
+	// Redux State
 	const dispatch: AppDispatch = useDispatch();
 	const currentFileName = useSelector(
 		(state: RootState) => state.currentFile.name
 	);
+	const { isPlaying, isRepeating } = useSelector(
+		(state: RootState) => state.currentFile
+	);
+
+	// Local State
 	const [volume, setVolume] = useState(50);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
-	const { isPlaying } = useSelector((state: RootState) => state.currentFile);
 
 	const handleVolumeChange = (value: number[]) => {
 		const newVolume = value[0];
@@ -72,6 +79,21 @@ const AudioPlayer = () => {
 	const handlePrevTrack = () => {
 		dispatch(prevTrack());
 	};
+
+	const handleToggleRepeat = () => {
+		dispatch(toggleRepeat());
+	};
+
+	useEffect(() => {
+		// When the audio ends, if repeat is enabled, play it again
+		if (audioSource) {
+			audioSource.onended = () => {
+				if (isRepeating) {
+					dispatch(playAudio());
+				}
+			};
+		}
+	}, [isRepeating, dispatch]);
 
 	const VOLUME_THRESHOLD = 50;
 
@@ -150,9 +172,13 @@ const AudioPlayer = () => {
 					</TooltipIcon>
 					<TooltipIcon tooltipText='Repeat'>
 						<Repeat
-							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
+							className={`dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1 ${
+								isRepeating
+									? 'text-primary'
+									: 'dark:text-white-muted text-black-muted'
+							}`}
 							size={18}
-							onClick={handleNextTrack}
+							onClick={handleToggleRepeat}
 						/>
 					</TooltipIcon>
 				</div>
