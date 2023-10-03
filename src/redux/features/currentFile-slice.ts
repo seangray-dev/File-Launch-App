@@ -30,6 +30,7 @@ export const audioContext = new window.AudioContext();
 let gainNode: GainNode = audioContext.createGain();
 
 export let offsetTime = 0;
+console.log('Initial offsetTime: ', offsetTime);
 export let startTime = 0;
 export let audioBuffer: AudioBuffer | null = null;
 export let audioSource: AudioBufferSourceNode | undefined;
@@ -182,10 +183,34 @@ export const prevTrack = createAsyncThunk(
 	}
 );
 
+export const skipBack = createAsyncThunk(
+	'audio/skipBack',
+	async (_, { dispatch }) => {
+		// Decrease the offset by 15 seconds
+		offsetTime -= 15;
+		console.log('Updated offsetTime in skipAhead: ', offsetTime);
+		// Don't allow negative offset
+		if (offsetTime < 0) offsetTime = 0;
+		// Re-initialize the playback
+		await dispatch(updatePlaybackPosition(offsetTime));
+	}
+);
+
+export const skipAhead = createAsyncThunk(
+	'audio/skipAhead',
+	async (_, { dispatch }) => {
+		// Increase the offset by 15 seconds
+		offsetTime += 15;
+		// Re-initialize the playback
+		await dispatch(updatePlaybackPosition(offsetTime));
+	}
+);
+
 export const updatePlaybackPosition = createAsyncThunk(
 	'audio/updatePlaybackPosition',
 	async (newTime: number) => {
 		offsetTime = newTime;
+
 		if (audioSource) {
 			audioSource.stop();
 		}

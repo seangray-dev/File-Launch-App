@@ -24,32 +24,33 @@ const ProgressSlider = () => {
 	const [totalDuration, setTotalDuration] = useState(0); // in seconds
 	const [currentTime, setCurrentTime] = useState(0); // in seconds
 
+	const updateTimeline = () => {
+		const currentTimeCalculation =
+			audioContext.currentTime - startTime + offsetTime;
+		// console.log('Calculated currentTime: ', currentTimeCalculation);
+
+		if (
+			isPlaying &&
+			audioContext &&
+			typeof startTime !== 'undefined' &&
+			currentTimeCalculation <= totalDuration
+		) {
+			setCurrentTime(currentTimeCalculation);
+		}
+
+		// Schedule the next frame
+		requestAnimationFrame(updateTimeline);
+	};
+
 	useEffect(() => {
 		if (audioBuffer) {
 			setTotalDuration(audioBuffer.duration);
 		}
 
-		const intervalId = setInterval(() => {
-			// Add a check to see if the audio has finished
-			const currentTimeCalculation =
-				audioContext.currentTime - startTime + offsetTime;
+		// Initialize the animation
+		requestAnimationFrame(updateTimeline);
 
-			if (
-				isPlaying &&
-				audioContext &&
-				typeof startTime !== 'undefined' &&
-				currentTimeCalculation <= totalDuration
-			) {
-				setCurrentTime(currentTimeCalculation);
-			} else {
-				// Stop the interval when audio finishes
-				clearInterval(intervalId);
-			}
-			// Update every second
-		}, 1000);
-
-		// Clear the interval when the component unmounts
-		return () => clearInterval(intervalId);
+		return () => {};
 	}, [isPlaying, totalDuration]);
 
 	const handlePlaybackChange = (value: number[]) => {

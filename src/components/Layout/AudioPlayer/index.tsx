@@ -7,10 +7,18 @@ import {
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
-import { nextTrack, prevTrack } from '@/redux/features/currentFile-slice';
+import {
+	nextTrack,
+	prevTrack,
+	skipAhead,
+	skipBack,
+} from '@/redux/features/currentFile-slice';
 import {
 	PauseCircleIcon,
 	PlayCircleIcon,
+	Repeat,
+	RotateCcw,
+	RotateCw,
 	SkipBackIcon,
 	SkipForwardIcon,
 	Volume1Icon,
@@ -59,12 +67,10 @@ const AudioPlayer = () => {
 
 	const handleNextTrack = () => {
 		dispatch(nextTrack());
-		// Auto-play logic here
 	};
 
 	const handlePrevTrack = () => {
 		dispatch(prevTrack());
-		// Auto-play logic here
 	};
 
 	const VOLUME_THRESHOLD = 50;
@@ -73,20 +79,20 @@ const AudioPlayer = () => {
 		if (volume === 0) {
 			return (
 				<TooltipIcon tooltipText='Unmute'>
-					<VolumeXIcon className='-mb-1' size={28} onClick={toggleMute} />
+					<VolumeXIcon className='-mb-1' size={24} onClick={toggleMute} />
 				</TooltipIcon>
 			);
 		}
 		if (volume < VOLUME_THRESHOLD) {
 			return (
 				<TooltipIcon tooltipText='Mute'>
-					<Volume1Icon className='-mb-1' size={28} onClick={toggleMute} />
+					<Volume1Icon className='-mb-1' size={24} onClick={toggleMute} />
 				</TooltipIcon>
 			);
 		}
 		return (
 			<TooltipIcon tooltipText='Mute'>
-				<Volume2Icon className='-mb-1' size={28} onClick={toggleMute} />
+				<Volume2Icon className='-mb-1' size={24} onClick={toggleMute} />
 			</TooltipIcon>
 		);
 	};
@@ -107,10 +113,17 @@ const AudioPlayer = () => {
 		<section className='bg-secondary py-6 relative'>
 			<ProgressSlider />
 			<div className='grid grid-cols-3 mt-6 px-2 items-center'>
-				<div className='text-sm cursor-default select-none'>
+				<div className='text-xs cursor-default select-none'>
 					{currentFileName}
 				</div>
-				<div className='flex items-center gap-4 justify-center'>
+				<div className='flex items-center gap-3 justify-center'>
+					<TooltipIcon tooltipText='Skip Back 15 Seconds'>
+						<RotateCcw
+							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
+							size={18}
+							onClick={() => dispatch(skipBack())}
+						/>
+					</TooltipIcon>
 					<TooltipIcon tooltipText='Previous'>
 						<SkipBackIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
@@ -125,6 +138,20 @@ const AudioPlayer = () => {
 						<SkipForwardIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
 							size={20}
+							onClick={handleNextTrack}
+						/>
+					</TooltipIcon>
+					<TooltipIcon tooltipText='Skip Ahead 15 Seconds'>
+						<RotateCw
+							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
+							size={18}
+							onClick={() => dispatch(skipAhead())}
+						/>
+					</TooltipIcon>
+					<TooltipIcon tooltipText='Repeat'>
+						<Repeat
+							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
+							size={18}
 							onClick={handleNextTrack}
 						/>
 					</TooltipIcon>
