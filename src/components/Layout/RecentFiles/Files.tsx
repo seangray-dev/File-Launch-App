@@ -10,6 +10,7 @@ import {
 	pauseAudio,
 	playAudio,
 	setCurrentFile,
+	setFilteredFiles,
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { FilesProps } from '@/types';
@@ -36,6 +37,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 		(state: RootState) => state.currentFile.activeFileIndex
 	);
 	const dispatch: AppDispatch = useDispatch();
+	dispatch(setFilteredFiles(filteredFiles));
 
 	const handlePlay = async (idx: number) => {
 		if (activeFileIndex === idx) {

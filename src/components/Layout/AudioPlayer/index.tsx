@@ -7,6 +7,7 @@ import {
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
+import { nextTrack, prevTrack } from '@/redux/features/currentFile-slice';
 import {
 	PauseCircleIcon,
 	PlayCircleIcon,
@@ -54,6 +55,16 @@ const AudioPlayer = () => {
 		} else {
 			await dispatch(playAudio());
 		}
+	};
+
+	const handleNextTrack = () => {
+		dispatch(nextTrack());
+		// Auto-play logic here
+	};
+
+	const handlePrevTrack = () => {
+		dispatch(prevTrack());
+		// Auto-play logic here
 	};
 
 	const VOLUME_THRESHOLD = 50;
@@ -104,6 +115,7 @@ const AudioPlayer = () => {
 						<SkipBackIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
 							size={20}
+							onClick={handlePrevTrack}
 						/>
 					</TooltipIcon>
 					<span className='hover:scale-105 dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-all'>
@@ -113,6 +125,7 @@ const AudioPlayer = () => {
 						<SkipForwardIcon
 							className='dark:text-white-muted dark:hover:text-white text-black-muted hover:text-black duration-300 transition-colors mb-1'
 							size={20}
+							onClick={handleNextTrack}
 						/>
 					</TooltipIcon>
 				</div>

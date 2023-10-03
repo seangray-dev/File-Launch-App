@@ -1,6 +1,29 @@
+import { FileObject } from '@/types';
 import { blobCache, fetchLocalFile } from '@/utils/audioUtils';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
+
+type CurrentFileState = {
+	isPlaying: boolean;
+	activeFileIndex: number | null;
+	filteredFiles: FileObject[];
+	name: string;
+	path: string;
+	duration: number | null;
+	objectUrl: string | null;
+	volume: number | null;
+};
+
+const initialState: CurrentFileState = {
+	isPlaying: false,
+	activeFileIndex: null,
+	filteredFiles: [],
+	name: '',
+	path: '',
+	duration: null,
+	objectUrl: null,
+	volume: null,
+};
 
 // Initialize Web Audio API
 export const audioContext = new window.AudioContext();
@@ -95,6 +118,70 @@ export const pauseAudio = createAsyncThunk('audio/pause', async () => {
 	return false;
 });
 
+export const nextTrack = createAsyncThunk(
+	'currentFile/nextTrack',
+	async (_, { getState, dispatch }) => {
+		const state = getState() as RootState;
+		const { activeFileIndex, filteredFiles } = state.currentFile;
+
+		if (activeFileIndex === null) {
+			return null;
+		}
+
+		const nextIndex =
+			activeFileIndex + 1 < filteredFiles.length
+				? activeFileIndex + 1
+				: activeFileIndex;
+
+		const nextPath = filteredFiles[nextIndex].path;
+		const nextName = filteredFiles[nextIndex].name;
+
+		if (!nextPath) {
+			throw new Error('Next path is not defined');
+		}
+
+		// Auto-load and play the new track
+		await dispatch(loadAudio(nextPath));
+		await dispatch(playAudio());
+
+		// Update the current file's name
+		dispatch(setCurrentFile({ name: nextName, activeFileIndex: nextIndex }));
+
+		return nextIndex;
+	}
+);
+
+export const prevTrack = createAsyncThunk(
+	'currentFile/prevTrack',
+	async (_, { getState, dispatch }) => {
+		const state = getState() as RootState;
+		const { activeFileIndex, filteredFiles } = state.currentFile;
+
+		if (activeFileIndex === null) {
+			return null;
+		}
+
+		const prevIndex =
+			activeFileIndex - 1 >= 0 ? activeFileIndex - 1 : activeFileIndex;
+
+		const prevPath = filteredFiles[prevIndex].path;
+		const prevName = filteredFiles[prevIndex].name;
+
+		if (!prevPath) {
+			throw new Error('Previous path is not defined');
+		}
+
+		// Auto-load and play the new track
+		await dispatch(loadAudio(prevPath));
+		await dispatch(playAudio());
+
+		// Update the current file's name
+		dispatch(setCurrentFile({ name: prevName, activeFileIndex: prevIndex }));
+
+		return prevIndex;
+	}
+);
+
 export const updatePlaybackPosition = createAsyncThunk(
 	'audio/updatePlaybackPosition',
 	async (newTime: number) => {
@@ -120,30 +207,13 @@ export const updateVolume = createAsyncThunk<number, number>(
 	}
 );
 
-type CurrentFileState = {
-	isPlaying: boolean;
-	activeFileIndex: number | null;
-	name: string;
-	path: string;
-	duration: number | null;
-	objectUrl: string | null;
-	volume: number | null;
-};
-
-const initialState: CurrentFileState = {
-	isPlaying: false,
-	activeFileIndex: null,
-	name: '',
-	path: '',
-	duration: null,
-	objectUrl: null,
-	volume: null,
-};
-
 export const currentFile = createSlice({
 	name: 'currentFile',
 	initialState,
 	reducers: {
+		setFilteredFiles: (state, action: PayloadAction<FileObject[]>) => {
+			state.filteredFiles = action.payload;
+		},
 		setCurrentFile: (
 			state,
 			action: PayloadAction<Partial<CurrentFileState>>
@@ -183,11 +253,21 @@ export const currentFile = createSlice({
 			})
 			.addCase(updateVolume.fulfilled, (state, action) => {
 				state.volume = action.payload;
+			})
+			.addCase(nextTrack.fulfilled, (state, action) => {
+				state.activeFileIndex = action.payload;
+			})
+			.addCase(prevTrack.fulfilled, (state, action) => {
+				state.activeFileIndex = action.payload;
 			});
 	},
 });
 
-export const { setCurrentFile, resetCurrentFile, togglePlay } =
-	currentFile.actions;
+export const {
+	setCurrentFile,
+	resetCurrentFile,
+	togglePlay,
+	setFilteredFiles,
+} = currentFile.actions;
 
 export default currentFile.reducer;
