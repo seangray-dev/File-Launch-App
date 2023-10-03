@@ -3,6 +3,7 @@ import { TooltipIcon } from '@/components/ui/tooltipicon';
 import {
 	pauseAudio,
 	playAudio,
+	restartAudio,
 	updateVolume,
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
@@ -27,7 +28,7 @@ import {
 	Volume2Icon,
 	VolumeXIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ProgressSlider from './ProgressSlider';
 
@@ -45,6 +46,19 @@ const AudioPlayer = () => {
 	const [volume, setVolume] = useState(50);
 	const [previousVolume, setPreviousVolume] = useState<number | null>(null);
 
+	// Hooks
+	useEffect(() => {
+		// When the audio ends, if repeat is enabled, play it again
+		if (audioSource) {
+			audioSource.onended = () => {
+				if (isRepeating) {
+					dispatch(playAudio());
+				}
+			};
+		}
+	}, [isRepeating, dispatch]);
+
+	// Functions
 	const handleVolumeChange = (value: number[]) => {
 		const newVolume = value[0];
 		setVolume(newVolume);
@@ -84,17 +98,6 @@ const AudioPlayer = () => {
 		dispatch(toggleRepeat());
 	};
 
-	useEffect(() => {
-		// When the audio ends, if repeat is enabled, play it again
-		if (audioSource) {
-			audioSource.onended = () => {
-				if (isRepeating) {
-					dispatch(playAudio());
-				}
-			};
-		}
-	}, [isRepeating, dispatch]);
-
 	const VOLUME_THRESHOLD = 50;
 
 	const getVolumeIcon = () => {
@@ -130,6 +133,76 @@ const AudioPlayer = () => {
 			</TooltipIcon>
 		);
 	};
+
+	// Keyboard event handler
+	const handleKeyDown = useCallback(
+		(e: KeyboardEvent) => {
+			switch (e.code) {
+				case 'Enter': // Go back to beginning of track
+					dispatch(restartAudio());
+					break;
+				case 'Space': // Play/Pause
+					e.preventDefault(); // Prevent scrolling
+					togglePlayPause();
+					break;
+				case 'ArrowRight': // Skip ahead
+					dispatch(skipAhead());
+					break;
+				case 'ArrowLeft': // Skip back
+					dispatch(skipBack());
+					break;
+				case 'ArrowUp': // Play previous track
+					handlePrevTrack();
+					break;
+				case 'ArrowDown': // Play next track
+					handleNextTrack();
+					break;
+				case 'KeyM': // Toggle mute
+					toggleMute();
+					break;
+				case 'KeyR': // Toggle repeat
+					handleToggleRepeat();
+					break;
+				case 'Equal': // Increase volume ('+' key without shift)
+				case 'NumpadAdd': // Increase volume (Numpad '+')
+					if (volume < 100) {
+						const newVolume = Math.min(volume + 5, 100);
+						setVolume(newVolume);
+						dispatch(updateVolume(newVolume));
+					}
+					break;
+				case 'Minus': // Decrease volume ('-' key)
+				case 'NumpadSubtract': // Decrease volume (Numpad '-')
+					if (volume > 0) {
+						const newVolume = Math.max(volume - 5, 0);
+						setVolume(newVolume);
+						dispatch(updateVolume(newVolume));
+					}
+					break;
+				default:
+					break;
+			}
+		},
+		[
+			togglePlayPause,
+			handleNextTrack,
+			handlePrevTrack,
+			toggleMute,
+			handleToggleRepeat,
+			volume,
+			dispatch,
+		]
+	);
+
+	useEffect(() => {
+		// Attach the event listener
+		window.addEventListener('keydown', handleKeyDown);
+
+		// Detach the event listener on unmount
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
 
 	return (
 		<section className='bg-secondary py-6 relative'>

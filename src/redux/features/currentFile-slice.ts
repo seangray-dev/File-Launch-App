@@ -121,6 +121,36 @@ export const pauseAudio = createAsyncThunk('audio/pause', async () => {
 	return false;
 });
 
+export const restartAudio = createAsyncThunk(
+	'audio/restart',
+	async (_, { getState, dispatch }) => {
+		const state = getState() as RootState;
+		const objectUrl = state.currentFile.objectUrl;
+
+		if (!objectUrl) return false;
+
+		if (audioSource) {
+			audioSource.stop();
+		}
+
+		offsetTime = 0; // Reset the offset time to start from the beginning
+
+		const response = await fetch(objectUrl);
+		const arrayBuffer = await response.arrayBuffer();
+		audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+		audioSource = audioContext.createBufferSource();
+		audioSource.buffer = audioBuffer;
+		audioSource.connect(gainNode);
+		gainNode.connect(audioContext.destination);
+
+		startTime = audioContext.currentTime; // Reset the start time
+		audioSource.start(startTime, offsetTime);
+
+		return true;
+	}
+);
+
 export const nextTrack = createAsyncThunk(
 	'currentFile/nextTrack',
 	async (_, { getState, dispatch }) => {
