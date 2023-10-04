@@ -304,7 +304,14 @@ export const currentFile = createSlice({
 			})
 			.addCase(loadAudio.fulfilled, (state, action) => {
 				state.objectUrl = action.payload;
+				// state.isLoading = false;
 			})
+			// .addCase(loadAudio.pending, (state) => {
+			// 	state.isLoading = true; // Set loading state when loadAudio starts
+			// })
+			// .addCase(loadAudio.rejected, (state) => {
+			// 	state.isLoading = false; // Unset loading state if loadAudio fails
+			// })
 			.addCase(playAudio.fulfilled, (state) => {
 				state.isPlaying = true;
 			})

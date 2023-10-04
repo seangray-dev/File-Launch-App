@@ -14,7 +14,7 @@ import {
 } from '@/redux/features/currentFile-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { FilesProps } from '@/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import FileTableRow from './FileTableRow';
 import { FilterDropdown } from './FilterDropdown';
@@ -22,6 +22,11 @@ import { useFileFilters } from './useFileFilters';
 
 const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 	const [hoveredRowIndex, setHoveredRowIndex] = useState<number | null>(null);
+	const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
+	const [lastActiveFileIndex, setLastActiveFileIndex] = useState<number | null>(
+		null
+	);
+
 	const {
 		lastModifiedFilters,
 		fileTypeFilters,
@@ -30,29 +35,43 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 		clearAllFilters,
 		filteredFiles,
 	} = useFileFilters(recentFiles);
-	const isPlaying = useSelector(
-		(state: RootState) => state.currentFile.isPlaying
-	);
-	const activeFileIndex = useSelector(
-		(state: RootState) => state.currentFile.activeFileIndex
-	);
+
+	// Redux State
 	const dispatch: AppDispatch = useDispatch();
 	dispatch(setFilteredFiles(filteredFiles));
 
+	const isPlaying = useSelector(
+		(state: RootState) => state.currentFile.isPlaying
+	);
+
+	const activeFileIndex = useSelector(
+		(state: RootState) => state.currentFile.activeFileIndex
+	);
+
+	// Functions
 	const handlePlay = async (idx: number) => {
+		// If we click on the same file that's already selected
 		if (activeFileIndex === idx) {
 			if (isPlaying) {
 				dispatch(pauseAudio()).catch((err) =>
 					console.error('Failed to pause audio:', err)
 				);
+				// Reset the loader when pausing the audio
+				setLoadingIdx(null);
 			} else {
 				dispatch(playAudio()).catch((err) =>
 					console.error('Failed to play audio:', err)
 				);
 			}
 		} else {
+			// Set the loader only when trying to play a different file
+			setLoadingIdx(idx);
+
 			const fileName = filteredFiles[idx].name;
 			const filePath = filteredFiles[idx].path;
+
+			// Update lastActiveFileIndex before loading a new file
+			setLastActiveFileIndex(activeFileIndex);
 
 			// Load the new audio file
 			try {
@@ -69,6 +88,12 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 			);
 		}
 	};
+
+	useEffect(() => {
+		if (isPlaying && activeFileIndex !== lastActiveFileIndex) {
+			setLoadingIdx(null);
+		}
+	}, [isPlaying, activeFileIndex, lastActiveFileIndex]);
 
 	return (
 		<Table>
@@ -100,6 +125,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 								activeFileIndex={activeFileIndex}
 								setHoveredRowIndex={setHoveredRowIndex}
 								hoveredRowIndex={hoveredRowIndex}
+								loadingIdx={loadingIdx}
 							/>
 					  ))
 					: null}

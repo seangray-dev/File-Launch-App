@@ -44,6 +44,7 @@ export interface FileTableRowProps {
 	activeFileIndex: number | null;
 	setHoveredRowIndex: (index: number | null) => void;
 	hoveredRowIndex: number | null;
+	loadingIdx: number | null;
 }
 
 export interface FilesProps {

@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from '@/components/ui/table';
 import { FileTableRowProps } from '@/types';
-import { PauseIcon, PlayIcon } from 'lucide-react';
+import { Loader2, PauseIcon, PlayIcon } from 'lucide-react';
 
 const FileTableRow: React.FC<FileTableRowProps> = ({
 	file,
@@ -10,6 +10,7 @@ const FileTableRow: React.FC<FileTableRowProps> = ({
 	activeFileIndex,
 	setHoveredRowIndex,
 	hoveredRowIndex,
+	loadingIdx,
 }) => {
 	return (
 		<TableRow
@@ -19,15 +20,23 @@ const FileTableRow: React.FC<FileTableRowProps> = ({
 			onMouseLeave={() => setHoveredRowIndex(null)}
 			onClick={() => handlePlay(idx)}>
 			<TableCell>
-				{hoveredRowIndex === idx && activeFileIndex !== idx && (
+				{loadingIdx == idx ? (
 					<div className='absolute left-3 top-0 bottom-0 flex items-center'>
-						<PlayIcon size={18} />
+						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 					</div>
-				)}
-				{activeFileIndex === idx && (
-					<div className='absolute left-3 top-0 bottom-0 flex items-center'>
-						{isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
-					</div>
+				) : (
+					<>
+						{hoveredRowIndex === idx && activeFileIndex !== idx && (
+							<div className='absolute left-3 top-0 bottom-0 flex items-center'>
+								<PlayIcon size={18} />
+							</div>
+						)}
+						{activeFileIndex === idx && (
+							<div className='absolute left-3 top-0 bottom-0 flex items-center'>
+								{isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
+							</div>
+						)}
+					</>
 				)}
 			</TableCell>
 			<TableCell className='flex items-center select-none cursor-default'>
