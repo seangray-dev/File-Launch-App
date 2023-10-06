@@ -42,7 +42,7 @@ fn main() {
     });
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels, load_audio_file])
+        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels,])
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .run(tauri::generate_context!())
@@ -167,17 +167,7 @@ fn check_audio_channels(path: String) -> String {
     }
 }
 
-#[tauri::command]
-async fn load_audio_file(path: String) -> tauri::Result<Vec<u8>> {
-  use std::io::Read;
 
-  let mut file = File::open(path)?;
-  let metadata = file.metadata()?;
-  let mut buffer = Vec::with_capacity(metadata.len() as usize + 1);
-  file.read_to_end(&mut buffer)?;
-
-  Ok(buffer)
-}
 
 
 
