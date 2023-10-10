@@ -1,4 +1,5 @@
 import BaseFolder from './BaseFolder';
+import DefaultFilterDuration from './DefaultFilterDuration';
 import Startup from './Startup';
 import Theme from './Theme';
 
@@ -9,6 +10,7 @@ const Settings = () => {
 			<div className='flex flex-col gap-10'>
 				<Theme />
 				<BaseFolder />
+				<DefaultFilterDuration />
 				<Startup />
 			</div>
 		</div>
