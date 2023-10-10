@@ -50,9 +50,9 @@ export const useFileFilters = (recentFiles: Array<any>) => {
 					return false;
 			}
 
-			if (file.audioType !== 'stereo') {
-				return false;
-			}
+			// if (file.audioType !== 'stereo') {
+			// 	return false;
+			// }
 
 			return true;
 		});
