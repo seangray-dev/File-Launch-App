@@ -12,7 +12,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
-import { Cable, CheckCircle, XCircle } from 'lucide-react';
+import { Cable, CheckCircle2, XCircle } from 'lucide-react';
 import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
@@ -44,6 +44,20 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 						/>
 					</TooltipProvider>
 				</li> */}
+
+        <div className='relative'>
+          <Cable />
+          <CheckCircle2
+            color='#FFFFFF'
+            size={14}
+            className='absolute -bottom-1 -left-1 rounded-full bg-green-500'
+          />
+          <XCircle
+            color='#FFFFFF'
+            size={14}
+            className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
+          />
+        </div>
         <HeaderIcon tooltipText='Keyboard Shortcuts'>
           <ShortcutsPopover />
         </HeaderIcon>
