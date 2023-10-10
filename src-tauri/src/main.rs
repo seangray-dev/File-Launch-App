@@ -102,54 +102,48 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
             if path.is_dir() {
                 scan_directory_recursive(&path, files, days_filter)?;
             } else {
-                
                 let metadata: Metadata = fs::metadata(&path)?;
-
-                // Check for the last modified time within the filter range
-                if let Ok(time) = metadata.modified() {
-                    if let Ok(duration) = time.duration_since(UNIX_EPOCH) {
-                        let modified_duration = current_time.duration_since(UNIX_EPOCH).unwrap() - duration;
-                        if modified_duration > filter_duration {
-                            println!("Skipping file (older than filter): {:?}", path);
-                            // Skip this file if it's older than filter
-                            continue;  
-                        }
-                    }
-                }
-
-                let mut file_obj = HashMap::new();
-                
-                // Add name
-                if let Some(name) = path.file_name() {
-                    if let Some(name_str) = name.to_str() {
-                        file_obj.insert("name".to_string(), name_str.to_string());
-                    }
-                }
-
-                // Add parent
-                if let Some(parent) = path.parent() {
-                    if let Some(parent_str) = parent.to_str() {
-                        file_obj.insert("parent".to_string(), parent_str.to_string());
-                    }
-                }
-
-                // Add path
-                if let Some(path_str) = path.to_str() {
-                    file_obj.insert("path".to_string(), path_str.to_string());
-                }
-
-                file_obj.insert("lastModified".to_string(), metadata.modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs().to_string());
-
-                // Add file type (extension)
                 if let Some(ext) = path.extension() {
                     if let Some(ext_str) = ext.to_str() {
                         // Check for mp3 or wav
                         if ext_str == "mp3" || ext_str == "wav" {
-                            file_obj.insert("fileType".to_string(), ext_str.to_string());
-
                             // Check if the file is stereo
                             let channels = check_audio_channels(path.to_str().unwrap().to_string());
                             if channels == "stereo" {
+                                // Check for the last modified time within the filter range
+                                if let Ok(time) = metadata.modified() {
+                                    if let Ok(duration) = time.duration_since(UNIX_EPOCH) {
+                                        let modified_duration = current_time.duration_since(UNIX_EPOCH).unwrap() - duration;
+                                        if modified_duration > filter_duration {
+                                            println!("Skipping file (older than filter): {:?}", path);
+                                            continue;  // Skip this file if it's older than filter
+                                        }
+                                    }
+                                }
+
+                                let mut file_obj = HashMap::new();
+                                // Add name
+                                if let Some(name) = path.file_name() {
+                                    if let Some(name_str) = name.to_str() {
+                                        file_obj.insert("name".to_string(), name_str.to_string());
+                                    }
+                                }
+
+                                // Add parent
+                                if let Some(parent) = path.parent() {
+                                    if let Some(parent_str) = parent.to_str() {
+                                        file_obj.insert("parent".to_string(), parent_str.to_string());
+                                    }
+                                }
+
+                                // Add path
+                                if let Some(path_str) = path.to_str() {
+                                    file_obj.insert("path".to_string(), path_str.to_string());
+                                }
+
+                                file_obj.insert("lastModified".to_string(), metadata.modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs().to_string());
+                                file_obj.insert("fileType".to_string(), ext_str.to_string());
+
                                 println!("Adding stereo file to list: {:?}", path);
                                 files.push(file_obj);
                             }
@@ -161,6 +155,7 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
     }
     Ok(())
 }
+
 
 
 #[tauri::command]
