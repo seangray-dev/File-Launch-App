@@ -7,7 +7,7 @@ use std::path::Path;
 use tauri::api::dialog::FileDialogBuilder;
 use std::collections::HashMap;
 use std::fs::Metadata;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::fs::File;
 use std::io::BufReader;
 use rodio::source::Source;
@@ -42,7 +42,7 @@ fn main() {
     });
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels,])
+        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels,load_audio_file])
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .run(tauri::generate_context!())
@@ -78,20 +78,45 @@ async fn scan_directory(base_folder: String) -> Result<Vec<HashMap<String, Strin
     }
 
     let mut files: Vec<HashMap<String, String>> = vec![];
-    if let Err(e) = scan_directory_recursive(Path::new(&base_folder), &mut files) {
+    // Supplying None for days_filter so it uses the default of 7 days.
+    if let Err(e) = scan_directory_recursive(Path::new(&base_folder), &mut files, None) {
         return Err(format!("Failed to read directory: {}", e));
     }
     Ok(files)
 }
 
-fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>) -> std::io::Result<()> {
+fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>, days_filter: Option<u64>) -> std::io::Result<()> {
+    let current_time = SystemTime::now();
+    let filter_duration = match days_filter {
+        Some(days) => Duration::from_secs(days * 24 * 60 * 60),
+        None => Duration::from_secs(30 * 24 * 60 * 60),  // Default to 30 days
+    };
+    
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
+            
+            println!("Processing path: {:?}", path);
+
             if path.is_dir() {
-                scan_directory_recursive(&path, files)?;
+                scan_directory_recursive(&path, files, days_filter)?;
             } else {
+                
+                let metadata: Metadata = fs::metadata(&path)?;
+
+                // Check for the last modified time within the filter range
+                if let Ok(time) = metadata.modified() {
+                    if let Ok(duration) = time.duration_since(UNIX_EPOCH) {
+                        let modified_duration = current_time.duration_since(UNIX_EPOCH).unwrap() - duration;
+                        if modified_duration > filter_duration {
+                            println!("Skipping file (older than filter): {:?}", path);
+                            // Skip this file if it's older than filter
+                            continue;  
+                        }
+                    }
+                }
+
                 let mut file_obj = HashMap::new();
                 
                 // Add name
@@ -113,13 +138,7 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
                     file_obj.insert("path".to_string(), path_str.to_string());
                 }
 
-                // Add last modified time
-                let metadata: Metadata = fs::metadata(&path)?;
-                if let Ok(time) = metadata.modified() {
-                    if let Ok(duration) = time.duration_since(SystemTime::UNIX_EPOCH) {
-                        file_obj.insert("lastModified".to_string(), duration.as_secs().to_string());
-                    }
-                }
+                file_obj.insert("lastModified".to_string(), metadata.modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs().to_string());
 
                 // Add file type (extension)
                 if let Some(ext) = path.extension() {
@@ -131,7 +150,7 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
                             // Check if the file is stereo
                             let channels = check_audio_channels(path.to_str().unwrap().to_string());
                             if channels == "stereo" {
-
+                                println!("Adding stereo file to list: {:?}", path);
                                 files.push(file_obj);
                             }
                         }
@@ -142,7 +161,6 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
     }
     Ok(())
 }
-
 
 
 #[tauri::command]
@@ -167,7 +185,14 @@ fn check_audio_channels(path: String) -> String {
     }
 }
 
+#[tauri::command]
+async fn load_audio_file(path: String) -> tauri::Result<Vec<u8>> {
+  use std::io::Read;
 
+  let mut file = File::open(path)?;
+  let metadata = file.metadata()?;
+  let mut buffer = Vec::with_capacity(metadata.len() as usize + 1);
+  file.read_to_end(&mut buffer)?;
 
-
-
+  Ok(buffer)
+}
