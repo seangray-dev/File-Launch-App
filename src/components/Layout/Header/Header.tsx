@@ -1,30 +1,31 @@
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@/components/ui/tooltip';
 
 import {
-	ArrowLeftOnRectangleIcon,
-	BellIcon,
-	Cog6ToothIcon,
-	MagnifyingGlassIcon,
-	UserIcon,
+  ArrowLeftOnRectangleIcon,
+  BellIcon,
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+  UserIcon,
 } from '@heroicons/react/24/solid';
+import { Cable } from 'lucide-react';
 import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
 type HeaderProps = {
-	setCurrentView: (view: string) => void;
-	logout: () => void;
+  setCurrentView: (view: string) => void;
+  logout: () => void;
 };
 
 const Header = ({ setCurrentView, logout }: HeaderProps) => {
-	return (
-		<header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
-			<ul className='flex gap-2 items-center justify-end'>
-				{/* <li className='relative search-input'>
+  return (
+    <header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
+      <ul className='flex gap-2 items-center justify-end'>
+        {/* <li className='relative search-input'>
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
@@ -43,28 +44,28 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 						/>
 					</TooltipProvider>
 				</li> */}
-				<HeaderIcon tooltipText='Keyboard Shortcuts'>
-					<ShortcutsPopover />
-				</HeaderIcon>
-				<HeaderIcon
-					tooltipText='Profile'
-					onClick={() => setCurrentView('User Profile')}>
-					<UserIcon className='w-6 -mb-1' />
-				</HeaderIcon>
-				<HeaderIcon
-					tooltipText='Settings'
-					onClick={() => setCurrentView('Settings')}>
-					<Cog6ToothIcon className='w-6 -mb-1' />
-				</HeaderIcon>
-				<HeaderIcon tooltipText='Notifications'>
-					<BellIcon className='w-6 -mb-1' />
-				</HeaderIcon>
-				<HeaderIcon tooltipText='Logout' onClick={logout}>
-					<ArrowLeftOnRectangleIcon className='w-6 -mb-1' />
-				</HeaderIcon>
-			</ul>
-		</header>
-	);
+        <HeaderIcon tooltipText='Keyboard Shortcuts'>
+          <ShortcutsPopover />
+        </HeaderIcon>
+        <HeaderIcon
+          tooltipText='Profile'
+          onClick={() => setCurrentView('User Profile')}>
+          <UserIcon className='w-6 -mb-1' />
+        </HeaderIcon>
+        <HeaderIcon
+          tooltipText='Settings'
+          onClick={() => setCurrentView('Settings')}>
+          <Cog6ToothIcon className='w-6 -mb-1' />
+        </HeaderIcon>
+        <HeaderIcon tooltipText='Notifications'>
+          <BellIcon className='w-6 -mb-1' />
+        </HeaderIcon>
+        <HeaderIcon tooltipText='Logout' onClick={logout}>
+          <ArrowLeftOnRectangleIcon className='w-6 -mb-1' />
+        </HeaderIcon>
+      </ul>
+    </header>
+  );
 };
 
 export default Header;
