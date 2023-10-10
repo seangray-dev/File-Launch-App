@@ -12,7 +12,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
-import { Cable } from 'lucide-react';
+import { Cable, CheckCircle, XCircle } from 'lucide-react';
 import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
