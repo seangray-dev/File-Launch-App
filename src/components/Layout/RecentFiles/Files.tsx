@@ -38,7 +38,10 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 
 	// Redux State
 	const dispatch: AppDispatch = useDispatch();
-	dispatch(setFilteredFiles(filteredFiles));
+
+	useEffect(() => {
+		dispatch(setFilteredFiles(filteredFiles));
+	}, [filteredFiles, dispatch]);
 
 	const isPlaying = useSelector(
 		(state: RootState) => state.currentFile.isPlaying
