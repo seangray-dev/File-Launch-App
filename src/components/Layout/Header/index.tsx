@@ -22,7 +22,7 @@ type HeaderProps = {
 
 const Header = ({ setCurrentView, logout }: HeaderProps) => {
 	return (
-		<header className='p-4 border-b border-gray/10'>
+		<header className='sticky top-0 p-4 border-b border-gray/10 bg-background z-50'>
 			<ul className='flex gap-2 items-center justify-end'>
 				<li className='relative search-input'>
 					<TooltipProvider>

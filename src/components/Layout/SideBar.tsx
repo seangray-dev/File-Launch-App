@@ -14,7 +14,9 @@ const SideBar = ({ setCurrentView }) => {
 	};
 
 	return (
-		<section className='border-r border-r-gray/10 p-4 pt-8 min-h-screen flex flex-col'>
+		<div
+			className='sticky top-0 border-r border-r-gray/10 p-4 pt-8 flex flex-col min-h-screen
+		'>
 			<img
 				className='mx-auto mb-10 dark:hidden'
 				src='/images/logo-no-background-light.png'
@@ -64,7 +66,7 @@ const SideBar = ({ setCurrentView }) => {
 					<span>Stats</span>
 				</li>
 			</ul>
-		</section>
+		</div>
 	);
 };
 
