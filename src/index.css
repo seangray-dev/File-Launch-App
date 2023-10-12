@@ -55,9 +55,15 @@
 	}
 }
 
+@font-face {
+	font-family: Manrope;
+	src: url(./fonts/Manrope-VariableFont_wght.ttf);
+}
+
 @layer base {
 	* {
 		@apply border-border;
+		font-family: Manrope;
 	}
 	body {
 		@apply bg-background text-foreground;
