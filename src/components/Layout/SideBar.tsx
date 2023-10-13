@@ -26,7 +26,7 @@ const SideBar = ({ setCurrentView }) => {
 				src='/images/logo-no-background.png'
 			/>
 
-			<ul className='flex flex-col gap-6'>
+			<ul className='text-lg flex flex-col gap-6'>
 				<li
 					className='flex gap-2 hover:text-primary hover:cursor-pointer transition-all duration-300'
 					onClick={() => setCurrentView('Recent Files')}>
