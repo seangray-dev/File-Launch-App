@@ -56,7 +56,7 @@ function App() {
 							</section>
 							<section className='flex flex-col h-full'>
 								<Header logout={logout} setCurrentView={setCurrentView} />
-								<div className='flex-grow grid pt-4 px-4 overflow-y-auto'>
+								<div className='flex-grow grid overflow-y-auto'>
 									{componentInView}
 								</div>
 								<div className='bottom-0 sticky z-50'>
