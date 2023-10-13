@@ -1,30 +1,39 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { login } from '../services/auth';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import SignInPage from '../components/Layout/SignIn';
 
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 
-export const AuthContext = createContext();
+// Type the context
+interface AuthContextType {
+	user: User | null;
+}
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+// Type the children and other props
+interface AuthProviderProps {
+	children: ReactNode;
+}
 
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
+const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+	// Type the user state
+	const [user, setUser] = useState<User | null>(null);
 
-    return () => unsubscribe();
-  }, []);
+	useEffect(() => {
+		const auth = getAuth();
+		const unsubscribe = onAuthStateChanged(auth, (user) => {
+			setUser(user);
+		});
 
-  if (!user) {
-    return <SignInPage login={login} />;
-  }
+		return () => unsubscribe();
+	}, []);
 
-  return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
-  );
+	if (!user) {
+		return <SignInPage />;
+	}
+
+	return (
+		<AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+	);
 };
 
 export default AuthProvider;

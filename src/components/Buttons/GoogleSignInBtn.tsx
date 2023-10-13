@@ -2,10 +2,13 @@ import { Button } from '@/components/ui/button';
 import { login } from '../../services/auth';
 
 const GoogleSignInBtn = () => {
+	// Error handling callback
+	const handleError = (error: any) => {
+		console.error('Login failed:', error);
+	};
+
 	const handleClick = () => {
-		login().catch((error) => {
-			console.error('Login failed:', error);
-		});
+		login(handleError);
 	};
 
 	return (
