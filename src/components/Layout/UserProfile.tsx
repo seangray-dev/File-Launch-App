@@ -10,7 +10,7 @@ const UserProfile = () => {
 	}
 
 	return (
-		<div className='text-darkBlue dark:text-white'>
+		<div className='text-darkBlue dark:text-white p-4'>
 			<h1 className='font-bold text-2xl text-darkBlue dark:text-white mb-6'>
 				Profile
 			</h1>
