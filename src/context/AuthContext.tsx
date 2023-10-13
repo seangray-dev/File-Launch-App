@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useEffect, useState } from 'react';
-import SignInPage from '../components/Layout/SignIn';
+import SignInPage from '../components/Pages/SignIn';
 
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 
