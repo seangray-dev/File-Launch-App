@@ -8,7 +8,7 @@ const GoogleSignInBtn = () => {
 	};
 
 	const handleClick = () => {
-		login(handleError);
+		login(handleError, 'google');
 	};
 
 	return (

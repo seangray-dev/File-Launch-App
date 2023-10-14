@@ -1,52 +1,65 @@
+import { OAuthConfigs } from '@/config/oauth';
 import { open } from '@tauri-apps/api/shell';
 import {
-  getAuth,
-  GoogleAuthProvider,
-  getRedirectResult,
-  signInWithRedirect,
-  signInWithCredential,
+	AuthCredential,
+	GoogleAuthProvider,
+	getAuth,
+	signInWithCredential,
 } from 'firebase/auth';
 
-const openBrowserToConsent = (port: string) => {
-  // Replace CLIEN_ID_FROM_FIREBASE
-  // Must allow localhost as redirect_uri for CLIENT_ID on GCP: https://console.cloud.google.com/apis/credentials
-  return open(
-    'https://accounts.google.com/o/oauth2/auth?' +
-      'response_type=token&' +
-      'client_id=548682664229-7ac3l0o35o6bjomkduj66uafrv653svb.apps.googleusercontent.com&' +
-      `redirect_uri=http%3A//localhost:${port}&` +
-      'scope=email%20profile%20openid&' +
-      'prompt=consent'
-  );
+const openBrowserToConsent = async (port: string, provider: string) => {
+	const config = OAuthConfigs[provider];
+	if (!config) return Promise.reject('Invalid Provider');
+
+	// Use the config to construct the URL
+	const url = `${
+		config.authorizationEndpoint
+	}?response_type=token&client_id=YOUR_CLIENT_ID&redirect_uri=http%3A//localhost:${port}&scope=${encodeURIComponent(
+		config.scope
+	)}&prompt=consent`;
+
+	return open(url);
 };
 
-export const openGoogleSignIn = (port: string) => {
-  return new Promise((resolve, reject) => {
-    openBrowserToConsent(port).then(resolve).catch(reject);
-  });
+export const initiateOAuthSignIn = async (port: string, provider: string) => {
+	try {
+		await openBrowserToConsent(port, provider);
+	} catch (error) {
+		return Promise.reject(error);
+	}
 };
 
-export const googleSignIn = (payload: string) => {
-  const url = new URL(payload);
-  // Get `access_token` from redirect_uri param
-  const access_token = new URLSearchParams(url.hash.substring(1)).get(
-    'access_token'
-  );
+export const signIn = (payload: string, provider: string) => {
+	const url = new URL(payload);
+	const access_token = new URLSearchParams(url.hash.substring(1)).get(
+		'access_token'
+	);
 
-  if (!access_token) return;
+	if (!access_token) return Promise.reject('No access token found');
 
-  const auth = getAuth();
+	const auth = getAuth();
+	let credential: AuthCredential | null = null;
 
-  const credential = GoogleAuthProvider.credential(null, access_token);
+	if (provider === 'google') {
+		credential = GoogleAuthProvider.credential(null, access_token);
+	}
+	// Extend this part to add more providers
 
-  signInWithCredential(auth, credential).catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.error(errorCode, errorMessage);
-  });
+	if (credential) {
+		// Check if it's not null
+		return signInWithCredential(auth, credential).catch((error) => {
+			console.error('Error Code:', error.code, 'Error Message:', error.message);
+			return Promise.reject(error);
+		});
+	}
+	return Promise.reject('Invalid provider or failed to generate credential');
 };
 
-export const signOut = () => {
-  const auth = getAuth();
-  return auth.signOut();
+export const signOut = async () => {
+	const auth = getAuth();
+	try {
+		await auth.signOut();
+	} catch (error) {
+		return Promise.reject(error);
+	}
 };

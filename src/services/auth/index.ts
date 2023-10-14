@@ -1,15 +1,13 @@
 import { invoke } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
-import { auth } from '../firebase';
+import * as auth from '../firebase/auth'; // Import all exported methods from firebase/auth.ts
 import callbackTemplate from './callback.template';
 
-const { openGoogleSignIn, googleSignIn, signOut } = auth;
-
-export const login = (handleError: (error: any) => void) => {
+export const login = (handleError: (error: any) => void, provider: string) => {
 	// Wait for callback from tauri oauth plugin
-	listen('oauth://url', (data) => {
+	listen(`oauth://${provider}/url`, (data) => {
 		try {
-			googleSignIn(data.payload as string);
+			auth.signIn(data.payload as string, provider); // Use the new signIn method
 		} catch (error) {
 			handleError(error);
 		}
@@ -20,13 +18,13 @@ export const login = (handleError: (error: any) => void) => {
 	// it will kill the server
 	invoke('plugin:oauth|start', {
 		config: {
-			// Optional config, but use here to more friendly callback page
+			// Optional config, but use here for a more friendly callback page
 			response: callbackTemplate,
 		},
 	})
 		.then((port) => {
 			try {
-				openGoogleSignIn(port as string);
+				auth.initiateOAuthSignIn(port as string, provider); // This function initiates OAuth sign-in
 			} catch (error) {
 				handleError(error);
 			}
@@ -37,5 +35,5 @@ export const login = (handleError: (error: any) => void) => {
 };
 
 export const logout = () => {
-	return signOut();
+	return auth.signOut();
 };

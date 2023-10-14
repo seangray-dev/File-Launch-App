@@ -1,7 +1,10 @@
+import { firebaseApp } from '@/services/firebase/app';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import SignInPage from '../components/Pages/SignIn';
 
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+// Initialize Firebase
+firebaseApp;
 
 // Type the context
 interface AuthContextType {
