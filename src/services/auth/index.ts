@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
-import * as auth from '../firebase/auth'; // Import all exported methods from firebase/auth.ts
+import * as auth from '../firebase/auth';
 import callbackTemplate from './callback.template';
 
 export const login = (handleError: (error: any) => void, provider: string) => {
