@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { login } from '../../services/auth';
+import { login } from '@/services/auth';
 
 const GoogleSignInBtn = () => {
 	// Error handling callback

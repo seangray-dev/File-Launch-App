@@ -12,13 +12,19 @@ const openBrowserToConsent = async (port: string, provider: string) => {
 	if (!config) return Promise.reject('Invalid Provider');
 
 	// Use the config to construct the URL
-	const url = `${
-		config.authorizationEndpoint
-	}?response_type=token&client_id=YOUR_CLIENT_ID&redirect_uri=http%3A//localhost:${port}&scope=${encodeURIComponent(
-		config.scope
-	)}&prompt=consent`;
+	if (provider === 'google') {
+		const url =
+			`${config.authorizationEndpoint}` +
+			'?response_type=token&' +
+			'client_id=548682664229-7ac3l0o35o6bjomkduj66uafrv653svb.apps.googleusercontent.com&' +
+			`redirect_uri=http%3A//localhost:${port}&` +
+			`scope=${config.scope}` +
+			'prompt=consent';
 
-	return open(url);
+		return open(url);
+	} else {
+		console.error('Invalid provider', provider);
+	}
 };
 
 export const initiateOAuthSignIn = async (port: string, provider: string) => {
@@ -48,7 +54,6 @@ export const signIn = (payload: string, provider: string) => {
 	if (credential) {
 		// Check if it's not null
 		return signInWithCredential(auth, credential).catch((error) => {
-			console.error('Error Code:', error.code, 'Error Message:', error.message);
 			return Promise.reject(error);
 		});
 	}

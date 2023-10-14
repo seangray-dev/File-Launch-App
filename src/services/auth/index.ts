@@ -5,9 +5,9 @@ import callbackTemplate from './callback.template';
 
 export const login = (handleError: (error: any) => void, provider: string) => {
 	// Wait for callback from tauri oauth plugin
-	listen(`oauth://${provider}/url`, (data) => {
+	listen(`oauth://url`, (data) => {
 		try {
-			auth.signIn(data.payload as string, provider); // Use the new signIn method
+			auth.signIn(data.payload as string, provider);
 		} catch (error) {
 			handleError(error);
 		}
@@ -24,7 +24,8 @@ export const login = (handleError: (error: any) => void, provider: string) => {
 	})
 		.then((port) => {
 			try {
-				auth.initiateOAuthSignIn(port as string, provider); // This function initiates OAuth sign-in
+				// This function initiates OAuth sign-in
+				auth.initiateOAuthSignIn(port as string, provider);
 			} catch (error) {
 				handleError(error);
 			}
