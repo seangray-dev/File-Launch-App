@@ -38,6 +38,12 @@
 					"requireLiteralLeadingDot": false
 				}
 			},
+			"window": {
+				"startDragging": true,
+				"center": true,
+				"maximize": true,
+				"unmaximize": true
+			},
 			"path": {
 				"all": true
 			},
@@ -86,17 +92,15 @@
 		},
 		"windows": [
 			{
+				"center": true,
+				"hiddenTitle": true,
+				"resizable": true,
+				"title": "File Launch",
+				"titleBarStyle": "Overlay",
 				"width": 800,
 				"height": 600,
 				"minWidth": 800,
-				"minHeight": 600,
-				"title": "File Launch",
-				"center": true,
-				"fileDropEnabled": true,
-				"fullscreen": false,
-				"hiddenTitle": true,
-				"resizable": true,
-				"titleBarStyle": "Overlay"
+				"minHeight": 600
 			}
 		]
 	}
