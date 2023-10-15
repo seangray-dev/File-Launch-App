@@ -15,7 +15,7 @@ const SideBar = ({ setCurrentView }) => {
 
 	return (
 		<div
-			className='sticky top-0 border-r border-r-gray/10 p-4 pt-8 flex flex-col min-h-screen
+			className='sticky top-0 border-r border-r-gray/10 p-4 pt-10 flex flex-col min-h-screen
 		'>
 			<img
 				className='mx-auto mb-10 dark:hidden'
