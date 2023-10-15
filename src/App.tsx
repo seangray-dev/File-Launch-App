@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import AudioPlayer from './components/Layout/AudioPlayer';
 import Header from './components/Layout/Header';
+import SideBar from './components/Layout/SideBar';
 import EmailTemplates from './components/Pages/EmailTemplates';
 import FormatFiles from './components/Pages/FormatFiles';
 import RecentFiles from './components/Pages/RecentFiles';
 import Recipients from './components/Pages/Recipients';
 import Settings from './components/Pages/Settings';
-import SideBar from './components/Layout/SideBar';
 import Stats from './components/Pages/Stats';
 import UserProfile from './components/Pages/UserProfile';
 import AuthProvider from './context/AuthContext';
@@ -50,6 +50,7 @@ function App() {
 			<ThemeProvider>
 				<ReduxProvider>
 					<main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
+						<div data-tauri-drag-region className='faux-header'></div>
 						<>
 							<section>
 								<SideBar setCurrentView={setCurrentView} />

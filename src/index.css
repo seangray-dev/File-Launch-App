@@ -68,4 +68,9 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+
+	/* Faux Header */
+	.faux-header {
+		@apply fixed h-6 top-0 inset-x-0 z-[100] select-none;
+	}
 }
