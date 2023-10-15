@@ -95,7 +95,8 @@
 				"fileDropEnabled": true,
 				"fullscreen": false,
 				"hiddenTitle": true,
-				"resizable": true
+				"resizable": true,
+				"titleBarStyle": "Overlay"
 			}
 		]
 	}
