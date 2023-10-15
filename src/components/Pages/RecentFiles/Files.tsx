@@ -104,7 +104,7 @@ const Files: React.FC<FilesProps> = ({ recentFiles, areFilesChecked }) => {
 				<TableRow className='grid grid-cols-[30px_1fr_1fr_100px]'>
 					<TableHead></TableHead>
 					<TableHead className='flex items-center'>File Name</TableHead>
-					<TableHead className='flex items-center'>Client</TableHead>
+					<TableHead className='flex items-center'>Recipient</TableHead>
 					<TableHead className='flex items-center text-right'>
 						<FilterDropdown
 							lastModifiedFilters={lastModifiedFilters}
