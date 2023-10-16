@@ -71,6 +71,7 @@
 
 	/* Faux Header */
 	.faux-header {
-		@apply fixed h-6 top-0 inset-x-0 z-[100] select-none;
+		@apply fixed h-8 top-0 inset-x-0 z-[100] select-none;
+		/* @apply border border-red-500; */
 	}
 }

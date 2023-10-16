@@ -22,9 +22,9 @@ type HeaderProps = {
 
 const Header = ({ setCurrentView, logout }: HeaderProps) => {
 	return (
-		<header className='sticky top-0 pt-6 p-4 border-b border-gray/10 bg-background z-50'>
+		<header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
 			<ul className='flex gap-2 items-center justify-end'>
-				<li className='relative search-input'>
+				{/* <li className='relative search-input'>
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
@@ -42,7 +42,7 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 							placeholder='Search'
 						/>
 					</TooltipProvider>
-				</li>
+				</li> */}
 				<HeaderIcon tooltipText='Keyboard Shortcuts'>
 					<ShortcutsPopover />
 				</HeaderIcon>
