@@ -7,8 +7,6 @@ use serde_json::json;
 use std::io::Error;
 use std::io::ErrorKind;
 
-
-
 lazy_static! {
     static ref CONFIG_DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
 }

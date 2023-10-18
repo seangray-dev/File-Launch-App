@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod write_config;
+mod app_config_dir;
 
 use std::fs;
 use std::path::Path;
@@ -17,7 +17,7 @@ use once_cell::sync::Lazy;
 use std::sync:: Mutex;
 use std::time::Instant; 
 use std::fs::create_dir_all;
-use write_config::*;
+use app_config_dir::*;
 
 // Global Mutex-wrapped variable to hold preloaded files
 static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy::new(|| Mutex::new(None));
