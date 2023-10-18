@@ -12,32 +12,23 @@ lazy_static! {
 }
 
 pub fn initialize_config_dir(app_handle: tauri::AppHandle) -> std::io::Result<()> {
-    let config_dir_option = app_handle.path_resolver().app_config_dir();
+    let config_dir = app_handle.path_resolver().app_config_dir().ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Cannot resolve app config directory"))?;
 
-    // Safely unwrap the Option
-    if let Some(config_dir) = config_dir_option {
-        // Create the directory if it does not exist
-        if !config_dir.exists() {
-            create_dir_all(&config_dir)?;
-        }
-        let mut global_config_dir = CONFIG_DIR.lock().unwrap();
-        *global_config_dir = Some(config_dir.to_path_buf());
-        Ok(())
-    } else {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "Cannot resolve app config directory",
-        ))
+    if !config_dir.exists() {
+        create_dir_all(&config_dir)?;
     }
+
+    let mut global_config_dir = CONFIG_DIR.lock().unwrap();
+    *global_config_dir = Some(config_dir.to_path_buf());
+
+    Ok(())
 }
 
 pub fn write_base_folder_to_config(config_dir_path: &Path, base_folder: &str) -> std::io::Result<()> {
     let mut config_dir = CONFIG_DIR.lock().unwrap();
 
     if config_dir.is_none() {
-        if !config_dir_path.exists() {
-            create_dir_all(config_dir_path)?;
-        }
+        create_dir_all(config_dir_path)?;
         *config_dir = Some(config_dir_path.to_path_buf());
     }
 
@@ -61,22 +52,13 @@ pub fn read_base_folder_from_config() -> Result<Option<String>, std::io::Error> 
         let config_file_path = dir.join("base_folder_config.json");
 
         if config_file_path.exists() {
-            match std::fs::read_to_string(&config_file_path) {
-                Ok(content) => {
-                    let json: serde_json::Value = match serde_json::from_str(&content) {
-                        Ok(val) => val,
-                        Err(_) => return Err(Error::new(ErrorKind::InvalidData, "Error parsing JSON")),
-                    };
-                    
-                    if json["base_folder"].is_null() {
-                        return Ok(None);
-                    }
-                    
-                    return Ok(json["base_folder"].as_str().map(String::from));
-                },
-                Err(e) => {
-                    return Err(Error::new(ErrorKind::Other, format!("Failed to read config file: {}", e)));
-                }
+            let content = std::fs::read_to_string(&config_file_path).map_err(|e| Error::new(ErrorKind::Other, format!("Failed to read config file: {}", e)))?;
+            let json: serde_json::Value = serde_json::from_str(&content).map_err(|_| Error::new(ErrorKind::InvalidData, "Error parsing JSON"))?;
+
+            if let Some(base_folder) = json["base_folder"].as_str() {
+                return Ok(Some(base_folder.to_string()));
+            } else {
+                return Ok(None);
             }
         } else {
             return Err(Error::new(ErrorKind::NotFound, "Config file does not exist"));
