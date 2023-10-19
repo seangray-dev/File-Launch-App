@@ -23,7 +23,7 @@ use app_config_dir::*;
 static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy::new(|| Mutex::new(None));
 
 // Global variable to store the base folder path
-static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
+pub static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
 
 fn main() {
     tauri::Builder::default()
@@ -82,7 +82,10 @@ async fn select_directory(app_handle: tauri::AppHandle) -> Result<String, String
                 tx.send(Err("No folder was picked".to_string())).unwrap();
             }
         });
-        rx.recv().unwrap()
+        rx.recv().unwrap_or_else(|_| {
+            eprintln!("Failed to receive directory path from frontend.");
+            Err("Failed to receive directory path from frontend.".to_string())
+        })
     } else {
         // Handle the case where the app_config_dir is None
         Err("Could not determine the application config directory.".to_string())
@@ -113,7 +116,7 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
     }
 
     let current_time = SystemTime::now();
-    let filter_duration = days_filter.map_or(Duration::from_secs(365 * 24 * 60 * 60), |days| {
+    let filter_duration = days_filter.map_or(Duration::from_secs(30 * 24 * 60 * 60), |days| {
         Duration::from_secs(days * 24 * 60 * 60)
     });
 
@@ -152,14 +155,30 @@ fn scan_directory_recursive(dir: &Path, files: &mut Vec<HashMap<String, String>>
 
                     let mut file_obj = HashMap::new();
 
+                    // Debugging
+                    println!("Processing file: {:?}", path);
+
                     // Add name
                     if let Some(name_str) = path.file_name().and_then(|name| name.to_str()) {
                         file_obj.insert("name".to_string(), name_str.to_string());
                     }
-                    // Add parent path
-                    if let Some(parent_str) = path.parent().and_then(|parent| parent.to_str()) {
-                        file_obj.insert("parent".to_string(), parent_str.to_string());
-                    }
+                    // Add parent path (the client's folder name)
+    let base_folder_guard = BASE_FOLDER.lock().unwrap();
+    if let Some(base_folder) = base_folder_guard.as_ref() {
+        println!("BASE_FOLDER is: {}", base_folder);  // Debugging
+        let base_path = Path::new(base_folder);
+        if let Ok(stripped_path) = path.parent().unwrap().strip_prefix(base_path) {
+            if let Some(stripped_path_str) = stripped_path.to_str() {
+                let client_folder_str = stripped_path_str.split('/').next().unwrap_or("");
+                file_obj.insert("parent".to_string(), client_folder_str.to_string());
+                println!("Set parent to: {}", client_folder_str);  // Debugging
+            }
+        } else {
+            println!("Failed to strip prefix");  // Debugging
+        }
+    } else {
+        println!("BASE_FOLDER is not set");  // Debugging
+    }
                     // Add path
                     if let Some(path_str) = path.to_str() {
                         file_obj.insert("path".to_string(), path_str.to_string());
