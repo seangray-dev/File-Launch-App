@@ -18,6 +18,10 @@ use std::sync:: Mutex;
 use std::time::Instant; 
 use std::fs::create_dir_all;
 use app_config_dir::*;
+use tauri_plugin_store::StoreBuilder;
+use serde_json::json;
+use tauri::api::path::data_dir;
+use tauri::api::path::BaseDirectory;
 
 // Global Mutex-wrapped variable to hold preloaded files
 static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy::new(|| Mutex::new(None));
@@ -27,27 +31,59 @@ pub static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(No
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![select_directory, scan_directory, check_audio_channels,load_audio_file])
-        .plugin(tauri_plugin_oauth::init())
-        .plugin(tauri_plugin_persisted_scope::init())
+        .invoke_handler(tauri::generate_handler![/* your handlers here */])
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
-            // Initialize the config directory
-            match initialize_config_dir(app.app_handle()) {
+            // Get the path to the app's configuration directory
+            let config_dir = app.path_resolver().app_config_dir().ok_or_else(|| {
+                eprintln!("Failed to resolve app config directory");
+                Box::<dyn std::error::Error>::from("Failed to resolve app config directory")
+            })?;
+            let settings_path = config_dir.join("settings.json");
+
+            // Print the path to the console
+            println!("Settings path: {:?}", settings_path);
+
+            // Create the store
+            let mut store = StoreBuilder::new(app.handle(), settings_path.clone()).build();
+
+            // Insert the initial value for baseFolder
+            match store.insert("baseFolder".to_string(), json!("")) {
                 Ok(_) => {
-                    println!("Successfully initialized the config directory");
-                    match read_base_folder_from_config() {
-                        Ok(Some(folder)) => println!("Successfully read base folder: {}", folder),
-                        Ok(None) => println!("Base folder is not set in the config file"),
-                        Err(err) => println!("Failed to read base folder from config file: {:?}", err),
+                    match store.save() {
+                        Ok(_) => Ok(()),
+                        Err(e) => {
+                            eprintln!("Failed to save store: {}", e);
+                            Err(Box::new(e))
+                        }
                     }
                 },
-                Err(err) => println!("Failed to initialize the config directory: {:?}", err),
+                Err(e) => {
+                    eprintln!("Failed to insert initial value: {}", e);
+                    Err(Box::new(e))
+                }
             }
-            Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+
+// .setup(|app| {
+        //     // Initialize the config directory
+        //     match initialize_config_dir(app.app_handle()) {
+        //         Ok(_) => {
+        //             println!("Successfully initialized the config directory");
+        //             match read_base_folder_from_config() {
+        //                 Ok(Some(folder)) => println!("Successfully read base folder: {}", folder),
+        //                 Ok(None) => println!("Base folder is not set in the config file"),
+        //                 Err(err) => println!("Failed to read base folder from config file: {:?}", err),
+        //             }
+        //         },
+        //         Err(err) => println!("Failed to initialize the config directory: {:?}", err),
+        //     }
+        //     Ok(())
+        // })
 
 #[tauri::command]
 async fn select_directory(app_handle: tauri::AppHandle) -> Result<String, String> {
@@ -56,12 +92,9 @@ async fn select_directory(app_handle: tauri::AppHandle) -> Result<String, String
     
     // Safely unwrap the Option
     if let Some(config_dir) = config_dir_option {
-        // Create the directory if it does not exist
-        if !config_dir.exists() {
-            create_dir_all(&config_dir).expect("Failed to create config directory");
-        }
         
         let (tx, rx) = std::sync::mpsc::channel();
+        
         FileDialogBuilder::new().pick_folder(move |folder_path| {
             if let Some(path) = folder_path {
                 let path_str = path.to_str().unwrap_or("").to_string();
