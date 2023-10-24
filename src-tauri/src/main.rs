@@ -41,31 +41,7 @@ fn main() {
             let settings_path = config_dir.join("settings.json");
 
             // Create the store
-            let mut store =     StoreBuilder::new(app.handle(), settings_path.clone()).build();
-
-            // Check if baseFolder already has a value in the store
-            let base_folder_value = store.get("baseFolder".to_string());
-            println!("Initial baseFolder value: {:?}", base_folder_value);
-
-            if base_folder_value.is_none()  {
-            println!("baseFolder value is not set, initializing...");
-                // Insert the initial value for baseFolder as an empty string if it doesn't exist
-                match store.insert("baseFolder".to_string(), json!("")) {
-                    Ok(_) => {
-                        match store.save() {
-                            Ok(_) => Ok(()),
-                            Err(e) => {
-                                eprintln!("Failed to save store: {}", e);
-                                Err(Box::new(e))
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        eprintln!("Failed to insert initial value: {}", e);
-                        Err(Box::new(e))
-                    }
-                }?;
-            }   
+            let _store =     StoreBuilder::new(app.handle(), settings_path.clone()).build(); 
 
         Ok(())
     })
