@@ -1,24 +1,34 @@
 import { fetchFiles } from '@/redux/features/recentFiles-slice';
 import { AppDispatch, RootState } from '@/redux/store';
+import { appConfigStore } from '@/utils/appConfigStore';
 import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Files from './Files';
 import NoBaseFolder from './NoBaseFolder';
 
 const RecentFiles = () => {
+	// Redux State
 	const dispatch: AppDispatch = useDispatch();
-	const savedBaseFolder = window.localStorage.getItem('baseFolder') || '';
-
 	const { files, areFilesChecked, status } = useSelector(
 		(state: RootState) => state.recentFiles
 	);
 
+	// Local State
+	const [savedBaseFolder, setSavedBaseFolder] = useState<string | null>(null);
+
 	useEffect(() => {
-		if (savedBaseFolder) {
-			dispatch(fetchFiles(savedBaseFolder));
-		}
-	}, [savedBaseFolder, dispatch]);
+		const getAndDispatchFiles = async () => {
+			// tauri-plugin-store
+			const fetchedBaseFolder = await appConfigStore.get<string>('baseFolder');
+			setSavedBaseFolder(fetchedBaseFolder);
+			if (fetchedBaseFolder) {
+				dispatch(fetchFiles(fetchedBaseFolder));
+			}
+		};
+
+		getAndDispatchFiles();
+	}, [dispatch]);
 
 	return (
 		<div className='dark:text-white'>
