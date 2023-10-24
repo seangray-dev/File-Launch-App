@@ -24,9 +24,6 @@ const BaseFolder = () => {
 		try {
 			const result: string = await invoke('select_directory');
 			if (result) {
-				// Update the baseFolder in the store
-				await appConfigStore.set('baseFolder', result);
-				await appConfigStore.save();
 				setBaseFolder(result);
 			}
 		} catch (err) {
