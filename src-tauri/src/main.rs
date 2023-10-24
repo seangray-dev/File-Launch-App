@@ -3,25 +3,19 @@
 
 mod app_config_dir;
 
-use std::fs;
-use std::path::Path;
-use tauri::Manager;
-use tauri::api::dialog::FileDialogBuilder;
-use std::collections::HashMap;
-use std::fs::Metadata;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use std::fs::File;
-use std::io::BufReader;
 use rodio::source::Source;
 use once_cell::sync::Lazy;
-use std::sync:: Mutex;
-use std::time::Instant; 
-use std::fs::create_dir_all;
-use app_config_dir::*;
-use tauri_plugin_store::StoreBuilder;
 use serde_json::json;
-use tauri::api::path::data_dir;
-use tauri::api::path::BaseDirectory;
+use std::collections::HashMap;
+use std::fs;
+use std::fs::{Metadata, File};
+use std::io::BufReader;
+use std::path::Path;
+use std::time::{Duration, SystemTime, UNIX_EPOCH, Instant};
+use std::sync:: Mutex;
+use tauri::{Manager, Wry};
+use tauri::api::dialog::FileDialogBuilder;
+use tauri_plugin_store::{StoreBuilder, with_store, StoreCollection};
 
 // Global Mutex-wrapped variable to hold preloaded files
 static PRELOADED_FILES: Lazy<Mutex<Option<Vec<HashMap<String, String>>>>> = Lazy::new(|| Mutex::new(None));
@@ -31,68 +25,61 @@ pub static BASE_FOLDER: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(No
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![/* your handlers here */])
+        .invoke_handler(tauri::generate_handler![select_directory,scan_directory, check_audio_channels, load_audio_file ])
+        .plugin(tauri_plugin_oauth::init())
+        .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             // Get the path to the app's configuration directory
             let config_dir = app.path_resolver().app_config_dir().ok_or_else(|| {
-                eprintln!("Failed to resolve app config directory");
-                Box::<dyn std::error::Error>::from("Failed to resolve app config directory")
+
+            eprintln!("Failed to resolve app config directory");
+
+            Box::<dyn std::error::Error>::from("Failed to resolve app config directory")
             })?;
+        
             let settings_path = config_dir.join("settings.json");
 
-            // Print the path to the console
-            println!("Settings path: {:?}", settings_path);
-
             // Create the store
-            let mut store = StoreBuilder::new(app.handle(), settings_path.clone()).build();
+            let mut store =     StoreBuilder::new(app.handle(), settings_path.clone()).build();
 
-            // Insert the initial value for baseFolder
-            match store.insert("baseFolder".to_string(), json!("")) {
-                Ok(_) => {
-                    match store.save() {
-                        Ok(_) => Ok(()),
-                        Err(e) => {
-                            eprintln!("Failed to save store: {}", e);
-                            Err(Box::new(e))
+            // Check if baseFolder already has a value in the store
+            let base_folder_value = store.get("baseFolder".to_string());
+            println!("Initial baseFolder value: {:?}", base_folder_value);
+
+            if base_folder_value.is_none()  {
+            println!("baseFolder value is not set, initializing...");
+                // Insert the initial value for baseFolder as an empty string if it doesn't exist
+                match store.insert("baseFolder".to_string(), json!("")) {
+                    Ok(_) => {
+                        match store.save() {
+                            Ok(_) => Ok(()),
+                            Err(e) => {
+                                eprintln!("Failed to save store: {}", e);
+                                Err(Box::new(e))
+                            }
                         }
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to insert initial value: {}", e);
+                        Err(Box::new(e))
                     }
-                },
-                Err(e) => {
-                    eprintln!("Failed to insert initial value: {}", e);
-                    Err(Box::new(e))
-                }
-            }
-        })
+                }?;
+            }   
+
+        Ok(())
+    })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 
-// .setup(|app| {
-        //     // Initialize the config directory
-        //     match initialize_config_dir(app.app_handle()) {
-        //         Ok(_) => {
-        //             println!("Successfully initialized the config directory");
-        //             match read_base_folder_from_config() {
-        //                 Ok(Some(folder)) => println!("Successfully read base folder: {}", folder),
-        //                 Ok(None) => println!("Base folder is not set in the config file"),
-        //                 Err(err) => println!("Failed to read base folder from config file: {:?}", err),
-        //             }
-        //         },
-        //         Err(err) => println!("Failed to initialize the config directory: {:?}", err),
-        //     }
-        //     Ok(())
-        // })
-
 #[tauri::command]
 async fn select_directory(app_handle: tauri::AppHandle) -> Result<String, String> {
     let config_dir_option = app_handle.path_resolver().app_config_dir();
 
-    
     // Safely unwrap the Option
     if let Some(config_dir) = config_dir_option {
-        
         let (tx, rx) = std::sync::mpsc::channel();
         
         FileDialogBuilder::new().pick_folder(move |folder_path| {
@@ -104,12 +91,27 @@ async fn select_directory(app_handle: tauri::AppHandle) -> Result<String, String
                 *base_folder = Some(path_str.clone());
                 println!("DEBUG: Updated BASE_FOLDER to: {}", path_str);
                 
-                // Convert PathBuf to &Path and then write to the configuration file
-                if let Err(e) = write_base_folder_to_config(&config_dir.as_path(), &path_str) {
-                    eprintln!("Failed to write base folder to config: {}", e);
+                // Get the collection of stores from the app state
+                let stores = app_handle.state::<StoreCollection<Wry>>();
+                
+                // Define the path to the store file
+                let store_path = config_dir.join("settings.json");
+                
+                // Update the baseFolder in the store
+                let result = with_store(app_handle.clone(), stores, store_path, |store| {
+                    store.insert("baseFolder".to_string(), json!(path_str)).and_then(|_| store.save())
+                });
+                
+                match result {
+                    Ok(_) => {
+                        tx.send(Ok(path_str)).unwrap();
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to update store: {}", e);
+                        tx.send(Err(format!("Failed to update store: {}", e))).unwrap();
+                    }
                 }
                 
-                tx.send(Ok(path_str)).unwrap();
             } else {
                 println!("No folder was picked.");
                 tx.send(Err("No folder was picked".to_string())).unwrap();
