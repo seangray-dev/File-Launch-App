@@ -32,6 +32,7 @@
     "react-redux": "^8.1.2",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
+    "tauri-plugin-fs-extra-api": "github:tauri-apps/tauri-plugin-fs-extra#v1",
     "tauri-plugin-fs-watch-api": "github:tauri-apps/tauri-plugin-fs-watch#v1",
     "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1"
   },
