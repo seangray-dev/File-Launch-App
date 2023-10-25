@@ -1,33 +1,36 @@
 import { Button } from '@/components/ui/button';
+import { setBaseFolder } from '@/redux/features/recentFiles-slice';
+import { RootState } from '@/redux/store'; // Import RootState to type the state
 import { appConfigStore } from '@/utils/appConfigStore';
 import { invoke } from '@tauri-apps/api';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const BaseFolder = () => {
-	const [baseFolder, setBaseFolder] = useState<string>('');
+	// Redux State
+	const dispatch = useDispatch();
+	const baseFolder = useSelector(
+		(state: RootState) => state.recentFiles.baseFolder
+	);
 
 	useEffect(() => {
 		const initializeData = async () => {
-			// Load baseFolder from the store
+			// tauri-plugin-store
 			const initialBaseFolder = await appConfigStore.get('baseFolder');
-			console.log(initialBaseFolder);
 			if (typeof initialBaseFolder === 'string') {
-				setBaseFolder(initialBaseFolder);
+				dispatch(setBaseFolder(initialBaseFolder));
 			} else {
-				setBaseFolder('');
+				dispatch(setBaseFolder(''));
 			}
 		};
 		initializeData();
-	}, []);
+	}, [dispatch]);
 
 	const selectDirectory = async () => {
 		try {
 			const result: string = await invoke('select_directory');
 			if (result) {
-				// Update the baseFolder in the store
-				await appConfigStore.set('baseFolder', result);
-				await appConfigStore.save();
-				setBaseFolder(result);
+				dispatch(setBaseFolder(result));
 			}
 		} catch (err) {
 			console.log(err);

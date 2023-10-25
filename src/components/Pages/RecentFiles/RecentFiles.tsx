@@ -5,38 +5,38 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Files from './Files';
 import NoBaseFolder from './NoBaseFolder';
+import { RecentFilesProps } from './types';
 
-const RecentFiles = () => {
-	const dispatch: AppDispatch = useDispatch();
-	const savedBaseFolder = window.localStorage.getItem('baseFolder') || '';
+const RecentFiles: React.FC<RecentFilesProps> = ({ setCurrentView }) => {
+  // Redux State
+  const dispatch: AppDispatch = useDispatch();
+  const { baseFolder, files, areFilesChecked, status } = useSelector(
+    (state: RootState) => state.recentFiles
+  );
 
-	const { files, areFilesChecked, status } = useSelector(
-		(state: RootState) => state.recentFiles
-	);
+  useEffect(() => {
+    if (baseFolder) {
+      dispatch(fetchFiles(baseFolder));
+    }
+  }, [dispatch, baseFolder]);
 
-	useEffect(() => {
-		if (savedBaseFolder) {
-			dispatch(fetchFiles(savedBaseFolder));
-		}
-	}, [savedBaseFolder, dispatch]);
+  return (
+    <div className='dark:text-white'>
+      {!baseFolder ? (
+        <NoBaseFolder setCurrentView={setCurrentView} />
+      ) : (
+        <Files recentFiles={files} areFilesChecked={areFilesChecked} />
+      )}
 
-	return (
-		<div className='dark:text-white'>
-			{!savedBaseFolder ? (
-				<NoBaseFolder />
-			) : (
-				<Files recentFiles={files} areFilesChecked={areFilesChecked} />
-			)}
-
-			{!areFilesChecked && (
-				<div className='flex justify-center items-center h-32'>
-					{status === 'loading' ? (
-						<Loader2 className='h-10 w-10 animate-spin' />
-					) : null}
-				</div>
-			)}
-		</div>
-	);
+      {!areFilesChecked && (
+        <div className='flex justify-center items-center h-32'>
+          {status === 'loading' ? (
+            <Loader2 className='h-10 w-10 animate-spin' />
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default RecentFiles;

@@ -1,15 +1,10 @@
 import { FileObject } from '@/types';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { invoke } from '@tauri-apps/api';
-import { RootState } from '../store';
 
 export const fetchFiles = createAsyncThunk(
 	'files/fetchFiles',
-	async (baseFolder: string, { getState, rejectWithValue }) => {
-		const { files } = (getState() as RootState).recentFiles;
-		if (files.length > 0) {
-			return files;
-		}
+	async (baseFolder: string, { rejectWithValue }) => {
 		try {
 			let files: FileObject[] = await invoke('scan_directory', { baseFolder });
 			return files;
@@ -21,12 +16,14 @@ export const fetchFiles = createAsyncThunk(
 );
 
 type RecentFilesState = {
+	baseFolder: string | null;
 	files: FileObject[];
 	areFilesChecked: boolean;
 	status: string;
 };
 
 const initialState: RecentFilesState = {
+	baseFolder: null,
 	files: [],
 	areFilesChecked: false,
 	status: 'idle',
@@ -35,7 +32,11 @@ const initialState: RecentFilesState = {
 export const recentFilesSlice = createSlice({
 	name: 'recentFiles',
 	initialState,
-	reducers: {},
+	reducers: {
+		setBaseFolder: (state, action: PayloadAction<string | null>) => {
+			state.baseFolder = action.payload;
+		},
+	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(fetchFiles.pending, (state) => {
@@ -53,5 +54,7 @@ export const recentFilesSlice = createSlice({
 			});
 	},
 });
+
+export const { setBaseFolder } = recentFilesSlice.actions;
 
 export default recentFilesSlice.reducer;
