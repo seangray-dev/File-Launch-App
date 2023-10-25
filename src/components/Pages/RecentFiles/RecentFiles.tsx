@@ -5,8 +5,9 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Files from './Files';
 import NoBaseFolder from './NoBaseFolder';
+import { RecentFilesProps } from './types';
 
-const RecentFiles = ({ setCurrentView }) => {
+const RecentFiles: React.FC<RecentFilesProps> = ({ setCurrentView }) => {
   // Redux State
   const dispatch: AppDispatch = useDispatch();
   const { baseFolder, files, areFilesChecked, status } = useSelector(

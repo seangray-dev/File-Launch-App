@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
+import { NoBaseFolderProps } from './types';
 
-const NoBaseFolder = ({ setCurrentView }) => {
+const NoBaseFolder: React.FC<NoBaseFolderProps> = ({ setCurrentView }) => {
   const navigateToSettings = () => {
     setCurrentView('Settings');
   };
@@ -11,7 +12,9 @@ const NoBaseFolder = ({ setCurrentView }) => {
       <p>
         Go to Settings {'>'} Base Folder {'>'} Change Folder
       </p>
-      <Button onClick={navigateToSettings} className='p-2 mt-4'>
+      <Button
+        onClick={navigateToSettings}
+        className='p-2 mt-4 bg-primary text-white rounded'>
         Go to Settings
       </Button>
     </div>
