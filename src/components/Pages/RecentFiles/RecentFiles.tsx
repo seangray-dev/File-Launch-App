@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Files from './Files';
 import NoBaseFolder from './NoBaseFolder';
 
-const RecentFiles = () => {
+const RecentFiles = ({ setCurrentView }) => {
   // Redux State
   const dispatch: AppDispatch = useDispatch();
   const { baseFolder, files, areFilesChecked, status } = useSelector(
@@ -22,7 +22,7 @@ const RecentFiles = () => {
   return (
     <div className='dark:text-white'>
       {!baseFolder ? (
-        <NoBaseFolder />
+        <NoBaseFolder setCurrentView={setCurrentView} />
       ) : (
         <Files recentFiles={files} areFilesChecked={areFilesChecked} />
       )}

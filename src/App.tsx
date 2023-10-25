@@ -23,7 +23,7 @@ function App() {
 	let componentInView;
 	switch (currentView) {
 		case 'Recent Files':
-			componentInView = <RecentFiles />;
+			componentInView = <RecentFiles setCurrentView={setCurrentView} />;
 			break;
 		case 'Recipients':
 			componentInView = <Recipients />;
