@@ -16,6 +16,7 @@ export const fetchFiles = createAsyncThunk(
   }
 );
 
+// tauri-store
 const initialBaseFolder = (await appConfigStore.get('baseFolder')) as
   | string
   | null;
