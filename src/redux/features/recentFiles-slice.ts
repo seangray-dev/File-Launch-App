@@ -1,4 +1,5 @@
 import { FileObject } from '@/types';
+import { appConfigStore } from '@/utils/appConfigStore';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { invoke } from '@tauri-apps/api';
 
@@ -15,6 +16,10 @@ export const fetchFiles = createAsyncThunk(
   }
 );
 
+const initialBaseFolder = (await appConfigStore.get('baseFolder')) as
+  | string
+  | null;
+
 type RecentFilesState = {
   baseFolder: string | null;
   files: FileObject[];
@@ -23,7 +28,7 @@ type RecentFilesState = {
 };
 
 const initialState: RecentFilesState = {
-  baseFolder: null,
+  baseFolder: initialBaseFolder,
   files: [],
   areFilesChecked: false,
   status: 'idle',
