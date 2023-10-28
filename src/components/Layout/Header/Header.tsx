@@ -20,11 +20,11 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
         <HeaderIcon tooltipText='Base Folder Status'>
           <div className='relative'>
             <Cable className='-mb-1' />
-            <XCircle
+            {/* <XCircle
               color='#FFFFFF'
               size={14}
               className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
-            />
+            /> */}
             <CheckCircle2
               color='#FFFFFF'
               size={14}
