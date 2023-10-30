@@ -25,39 +25,21 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
   return (
     <header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
       <ul className='flex gap-2 items-center justify-end'>
-        {/* <li className='relative search-input'>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<span className='hover:text-primary transition-all duration-300 cursor-pointer absolute top-2 left-3 w-6 search-icon'>
-									<MagnifyingGlassIcon />
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Search</p>
-							</TooltipContent>
-						</Tooltip>
-						<input
-							className='bg-transparent outline-none border border-gray rounded-full py-2 pl-12 pr-2 focus:border-cyan transition-all duration-300 text-grey'
-							type='text'
-							placeholder='Search'
-						/>
-					</TooltipProvider>
-				</li> */}
-
-        <div className='relative'>
-          <Cable />
-          <CheckCircle2
-            color='#FFFFFF'
-            size={14}
-            className='absolute -bottom-1 -left-1 rounded-full bg-green-500'
-          />
-          <XCircle
-            color='#FFFFFF'
-            size={14}
-            className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
-          />
-        </div>
+        <HeaderIcon tooltipText='Base Folder Status'>
+          <div className='relative'>
+            <Cable className='-mb-1' />
+            <XCircle
+              color='#FFFFFF'
+              size={14}
+              className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
+            />
+            <CheckCircle2
+              color='#FFFFFF'
+              size={14}
+              className='absolute -bottom-1 -left-1 rounded-full bg-green-500'
+            />
+          </div>
+        </HeaderIcon>
         <HeaderIcon tooltipText='Keyboard Shortcuts'>
           <ShortcutsPopover />
         </HeaderIcon>
