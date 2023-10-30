@@ -1,15 +1,7 @@
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-
-import {
   ArrowLeftOnRectangleIcon,
   BellIcon,
   Cog6ToothIcon,
-  MagnifyingGlassIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
 import { Cable, CheckCircle2, XCircle } from 'lucide-react';
