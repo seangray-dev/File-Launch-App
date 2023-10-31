@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import AudioPlayer from './components/Layout/AudioPlayer';
 import Header from './components/Layout/Header';
 import SideBar from './components/Layout/SideBar';
+import NoBaseFolderAlert from './components/NoBaseFolderAlert';
 import EmailTemplates from './components/Pages/EmailTemplates';
 import FormatFiles from './components/Pages/FormatFiles';
 import RecentFiles from './components/Pages/RecentFiles';
@@ -16,6 +17,7 @@ import { setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
 import { logout } from './services/auth';
 import { appConfigStore } from './utils/appConfigStore';
+import { checkBaseFolderExistence } from './utils/baseFolderCheck';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function WrappedApp() {
     return savedStartupView ? savedStartupView : 'Recent Files';
   });
 
+  const [isDialogVisible, setDialogVisible] = useState(false);
+
   useEffect(() => {
     const loadInitialBaseFolder = async () => {
       const result = await appConfigStore.get('baseFolder');
@@ -47,6 +51,17 @@ function WrappedApp() {
 
     loadInitialBaseFolder();
   }, [dispatch]);
+
+  useEffect(() => {
+    const perfromCheck = async () => {
+      const status = await checkBaseFolderExistence();
+      if (status === 'does not exist') {
+        setDialogVisible(true);
+      }
+    };
+
+    perfromCheck();
+  }, [currentView]);
 
   let componentInView;
   switch (currentView) {
@@ -76,6 +91,7 @@ function WrappedApp() {
   return (
     <main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
       <div data-tauri-drag-region className='faux-header'></div>
+
       <>
         <section>
           <SideBar setCurrentView={setCurrentView} />
@@ -83,7 +99,14 @@ function WrappedApp() {
         <section className='flex flex-col h-full'>
           <Header logout={logout} setCurrentView={setCurrentView} />
           <div className='flex-grow grid overflow-y-auto'>
-            {componentInView}
+            {isDialogVisible ? (
+              <NoBaseFolderAlert
+                isOpen={isDialogVisible}
+                onClose={() => setDialogVisible(false)}
+              />
+            ) : (
+              <>{componentInView}</>
+            )}
           </div>
           <div className='bottom-0 sticky z-50'>
             <AudioPlayer />
