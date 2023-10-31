@@ -1,24 +1,19 @@
-import { fetchFiles } from '@/redux/features/recentFiles-slice';
-import { AppDispatch, RootState } from '@/redux/store';
+import { RootState } from '@/redux/store';
+import baseFolderWatcher from '@/utils/baseFolderWatcher';
 import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Files from './Files';
 import NoBaseFolder from './NoBaseFolder';
 import { RecentFilesProps } from './types';
 
 const RecentFiles: React.FC<RecentFilesProps> = ({ setCurrentView }) => {
+  // tauri-fs-watch
+  baseFolderWatcher();
+
   // Redux State
-  const dispatch: AppDispatch = useDispatch();
   const { baseFolder, files, areFilesChecked, status } = useSelector(
     (state: RootState) => state.recentFiles
   );
-
-  useEffect(() => {
-    if (baseFolder) {
-      dispatch(fetchFiles(baseFolder));
-    }
-  }, [dispatch, baseFolder]);
 
   return (
     <div className='dark:text-white'>

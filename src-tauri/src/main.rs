@@ -29,6 +29,8 @@ fn main() {
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_fs_watch::init())
+        .plugin(tauri_plugin_fs_extra::init())
         .setup(|app| {
             // Get the path to the app's configuration directory
             let config_dir = app.path_resolver().app_config_dir().ok_or_else(|| {
