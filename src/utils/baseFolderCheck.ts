@@ -5,5 +5,5 @@ export const checkBaseFolderExistence = async (): Promise<string> => {
   const baseFolder = await appConfigStore.get<string>('baseFolder');
   const folderExists = baseFolder ? await exists(baseFolder) : false;
   console.log(baseFolder, folderExists);
-  return folderExists ? 'exists' : 'does not exist';
+  return folderExists ? 'available' : 'unavailable';
 };
