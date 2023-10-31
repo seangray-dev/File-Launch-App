@@ -13,8 +13,9 @@ import Stats from './components/Pages/Stats';
 import UserProfile from './components/Pages/UserProfile';
 import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { setBaseFolder } from './redux/features/recentFiles-slice';
+import { fetchFiles, setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
+import { AppDispatch } from './redux/store';
 import { logout } from './services/auth';
 import { appConfigStore } from './utils/appConfigStore';
 import { checkBaseFolderExistence } from './utils/baseFolderCheck';
@@ -32,14 +33,18 @@ function App() {
 }
 
 function WrappedApp() {
-  const dispatch = useDispatch();
+  // Redux
+  const dispatch: AppDispatch = useDispatch();
 
+  // Local Storage
   const [currentView, setCurrentView] = useState(() => {
     const savedStartupView = window.localStorage.getItem('startupView');
     return savedStartupView ? savedStartupView : 'Recent Files';
   });
 
+  // Local State
   const [isDialogVisible, setDialogVisible] = useState(false);
+  const [areFilesFetched, setAreFilesFetched] = useState(false);
 
   useEffect(() => {
     const loadInitialBaseFolder = async () => {
@@ -55,13 +60,20 @@ function WrappedApp() {
   useEffect(() => {
     const perfromCheck = async () => {
       const status = await checkBaseFolderExistence();
-      if (status === 'does not exist') {
+      if (status === 'unavailable') {
         setDialogVisible(true);
+        setAreFilesFetched(false);
+      } else if (status === 'available' && !areFilesFetched) {
+        const baseFolder = await appConfigStore.get<string>('baseFolder');
+        if (baseFolder) {
+          dispatch(fetchFiles(baseFolder));
+          setAreFilesFetched(true);
+        }
       }
     };
 
     perfromCheck();
-  }, [currentView]);
+  }, [currentView, areFilesFetched, dispatch]);
 
   let componentInView;
   switch (currentView) {

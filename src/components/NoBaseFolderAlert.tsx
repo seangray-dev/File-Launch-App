@@ -1,3 +1,6 @@
+import { fetchFiles } from '@/redux/features/recentFiles-slice';
+import { AppDispatch } from '@/redux/store';
+import { appConfigStore } from '@/utils/appConfigStore';
 import { checkBaseFolderExistence } from '@/utils/baseFolderCheck';
 import {
   Modal,
@@ -6,20 +9,41 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@nextui-org/react';
-import { useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Button } from './ui/button';
 import { ButtonLoading } from './ui/button-loading';
 
-const NoBaseFolderAlert = ({ isOpen, onClose }) => {
+type NoBaseFolderAlertProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+const NoBaseFolderAlert: FC<NoBaseFolderAlertProps> = ({ isOpen, onClose }) => {
+  // Redux
+  const dispatch: AppDispatch = useDispatch();
+
+  // Local State
   const [isLoading, setIsLoading] = useState(false);
+  const [baseFolder, setBaseFolder] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getBaseFolder = async () => {
+      const folder = await appConfigStore.get<string>('baseFolder');
+      setBaseFolder(folder);
+    };
+
+    getBaseFolder();
+  }, []);
 
   const handleCheckBaseFolder = async () => {
     setIsLoading(true);
     const status = await checkBaseFolderExistence();
     setTimeout(() => {
       setIsLoading(false);
-      if (status === 'exists') {
-        onClose(); // Close the modal if the base folder exists
+      if (status === 'exists' && baseFolder) {
+        onClose();
+        dispatch(fetchFiles(baseFolder));
       }
     }, 1000);
   };
