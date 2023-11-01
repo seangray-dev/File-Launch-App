@@ -58,7 +58,7 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
               : 'Base Folder is unavailable'
           }>
           <div className='relative' onClick={toggleAlertVisibility}>
-            <Cable />
+            <Cable className='-mb-1' />
             {isAvailable === null ? null : isAvailable ? (
               <CheckCircle2
                 color='#FFFFFF'
