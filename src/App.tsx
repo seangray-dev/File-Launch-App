@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import AudioPlayer from './components/Layout/AudioPlayer';
 import Header from './components/Layout/Header';
 import SideBar from './components/Layout/SideBar';
@@ -13,9 +13,10 @@ import UserProfile from './components/Pages/UserProfile';
 import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { checkBaseFolderStatus } from './redux/features/baseFolderStatus-slice';
+import { setCurrentView } from './redux/features/navigation-slice';
 import { setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
-import { AppDispatch } from './redux/store';
+import { AppDispatch, RootState } from './redux/store';
 import { logout } from './services/auth';
 import { appConfigStore } from './utils/appConfigStore';
 
@@ -34,12 +35,9 @@ function App() {
 function WrappedApp() {
   // Redux
   const dispatch: AppDispatch = useDispatch();
-
-  // Local Storage
-  const [currentView, setCurrentView] = useState(() => {
-    const savedStartupView = window.localStorage.getItem('startupView');
-    return savedStartupView ? savedStartupView : 'Recent Files';
-  });
+  const currentView = useSelector(
+    (state: RootState) => state.navigation.currentView
+  );
 
   useEffect(() => {
     const loadInitialBaseFolder = async () => {
@@ -56,42 +54,30 @@ function WrappedApp() {
     dispatch(checkBaseFolderStatus());
   }, [currentView, dispatch]);
 
-  let componentInView;
-  switch (currentView) {
-    case 'Recent Files':
-      componentInView = <RecentFiles setCurrentView={setCurrentView} />;
-      break;
-    case 'Recipients':
-      componentInView = <Recipients />;
-      break;
-    case 'Format Files':
-      componentInView = <FormatFiles />;
-      break;
-    case 'Email Templates':
-      componentInView = <EmailTemplates />;
-      break;
-    case 'User Profile':
-      componentInView = <UserProfile />;
-      break;
-    case 'Settings':
-      componentInView = <Settings />;
-      break;
-    case 'Stats':
-      componentInView = <Stats />;
-      break;
-  }
+  const components = {
+    'Recent Files': <RecentFiles setCurrentView={setCurrentView} />,
+    Recipients: <Recipients />,
+    'Format Files': <FormatFiles />,
+    'Email Templates': <EmailTemplates />,
+    'User Profile': <UserProfile />,
+    Settings: <Settings />,
+    Stats: <Stats />,
+  } as const;
+
+  type ViewKey = keyof typeof components;
+  const currentViewKey = currentView as ViewKey;
 
   return (
     <main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
       <div data-tauri-drag-region className='faux-header'></div>
       <>
         <section>
-          <SideBar setCurrentView={setCurrentView} />
+          <SideBar />
         </section>
         <section className='flex flex-col h-full'>
-          <Header logout={logout} setCurrentView={setCurrentView} />
+          <Header logout={logout} />
           <div className='flex-grow grid overflow-y-auto'>
-            {componentInView}
+            {components[currentViewKey]}
           </div>
           <div className='bottom-0 sticky z-50'>
             <AudioPlayer />

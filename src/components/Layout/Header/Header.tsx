@@ -1,5 +1,6 @@
 import NoBaseFolderAlert from '@/components/NoBaseFolderAlert';
 import { checkBaseFolderStatus } from '@/redux/features/baseFolderStatus-slice';
+import { setCurrentView } from '@/redux/features/navigation-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import {
   ArrowLeftOnRectangleIcon,
@@ -14,11 +15,10 @@ import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
 type HeaderProps = {
-  setCurrentView: (view: string) => void;
   logout: () => void;
 };
 
-const Header = ({ setCurrentView, logout }: HeaderProps) => {
+const Header = ({ logout }: HeaderProps) => {
   // Redux
   const dispatch: AppDispatch = useDispatch();
   const { isAvailable } = useSelector(
@@ -46,6 +46,10 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
     setIsAlertVisible((prevState) => !prevState);
   };
 
+  const handleSetCurrentView = (view: string) => {
+    dispatch(setCurrentView(view));
+  };
+
   return (
     <header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
       <ul className='flex gap-2 items-center justify-end'>
@@ -58,7 +62,7 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
               : 'Base Folder is unavailable'
           }>
           <div className='relative' onClick={toggleAlertVisibility}>
-            <Cable />
+            <Cable className='-mb-1' />
             {isAvailable === null ? null : isAvailable ? (
               <CheckCircle2
                 color='#FFFFFF'
@@ -79,12 +83,12 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
         </HeaderIcon>
         <HeaderIcon
           tooltipText='Profile'
-          onClick={() => setCurrentView('User Profile')}>
+          onClick={() => handleSetCurrentView('User Profile')}>
           <UserIcon className='w-6 -mb-1' />
         </HeaderIcon>
         <HeaderIcon
           tooltipText='Settings'
-          onClick={() => setCurrentView('Settings')}>
+          onClick={() => handleSetCurrentView('Settings')}>
           <Cog6ToothIcon className='w-6 -mb-1' />
         </HeaderIcon>
         <HeaderIcon tooltipText='Notifications'>
