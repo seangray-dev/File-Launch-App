@@ -39,12 +39,6 @@ function WrappedApp() {
     (state: RootState) => state.navigation.currentView
   );
 
-  // // Local Storage
-  // const [currentView, setCurrentView] = useState(() => {
-  //   const savedStartupView = window.localStorage.getItem('startupView');
-  //   return savedStartupView ? savedStartupView : 'Recent Files';
-  // });
-
   useEffect(() => {
     const loadInitialBaseFolder = async () => {
       const result = await appConfigStore.get('baseFolder');

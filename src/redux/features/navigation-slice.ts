@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const savedStartupView = window.localStorage.getItem('startupView');
+
 const initialState = {
-  currentView: 'Recent Files',
+  currentView: savedStartupView ? savedStartupView : 'Recent Files',
 };
 
 const navigation = createSlice({
