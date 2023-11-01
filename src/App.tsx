@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 import AudioPlayer from './components/Layout/AudioPlayer';
 import Header from './components/Layout/Header';
 import SideBar from './components/Layout/SideBar';
-import NoBaseFolderAlert from './components/NoBaseFolderAlert';
 import EmailTemplates from './components/Pages/EmailTemplates';
 import FormatFiles from './components/Pages/FormatFiles';
 import RecentFiles from './components/Pages/RecentFiles';
@@ -14,12 +13,11 @@ import UserProfile from './components/Pages/UserProfile';
 import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { checkBaseFolderStatus } from './redux/features/baseFolderStatus-slice';
-import { fetchFiles, setBaseFolder } from './redux/features/recentFiles-slice';
+import { setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
 import { AppDispatch } from './redux/store';
 import { logout } from './services/auth';
 import { appConfigStore } from './utils/appConfigStore';
-import { checkBaseFolderExistence } from './utils/baseFolderCheck';
 
 function App() {
   return (
@@ -43,9 +41,6 @@ function WrappedApp() {
     return savedStartupView ? savedStartupView : 'Recent Files';
   });
 
-  // Local State
-  const [areFilesFetched, setAreFilesFetched] = useState(false);
-
   useEffect(() => {
     const loadInitialBaseFolder = async () => {
       const result = await appConfigStore.get('baseFolder');
@@ -59,7 +54,7 @@ function WrappedApp() {
 
   useEffect(() => {
     dispatch(checkBaseFolderStatus());
-  }, [currentView, areFilesFetched, dispatch]);
+  }, [currentView, dispatch]);
 
   let componentInView;
   switch (currentView) {

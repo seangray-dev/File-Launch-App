@@ -21,7 +21,7 @@ type HeaderProps = {
 const Header = ({ setCurrentView, logout }: HeaderProps) => {
   // Redux
   const dispatch: AppDispatch = useDispatch();
-  const { isAvailable, isLoading } = useSelector(
+  const { isAvailable } = useSelector(
     (state: RootState) => state.baseFolderStatus
   );
 
