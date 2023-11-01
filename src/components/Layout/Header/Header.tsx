@@ -1,5 +1,6 @@
 import NoBaseFolderAlert from '@/components/NoBaseFolderAlert';
 import { checkBaseFolderStatus } from '@/redux/features/baseFolderStatus-slice';
+import { setCurrentView } from '@/redux/features/navigation-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 import {
   ArrowLeftOnRectangleIcon,
@@ -14,11 +15,10 @@ import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
 type HeaderProps = {
-  setCurrentView: (view: string) => void;
   logout: () => void;
 };
 
-const Header = ({ setCurrentView, logout }: HeaderProps) => {
+const Header = ({ logout }: HeaderProps) => {
   // Redux
   const dispatch: AppDispatch = useDispatch();
   const { isAvailable } = useSelector(
@@ -44,6 +44,10 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
 
   const toggleAlertVisibility = () => {
     setIsAlertVisible((prevState) => !prevState);
+  };
+
+  const handleSetCurrentView = (view: string) => {
+    dispatch(setCurrentView(view));
   };
 
   return (
@@ -79,12 +83,12 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
         </HeaderIcon>
         <HeaderIcon
           tooltipText='Profile'
-          onClick={() => setCurrentView('User Profile')}>
+          onClick={() => handleSetCurrentView('User Profile')}>
           <UserIcon className='w-6 -mb-1' />
         </HeaderIcon>
         <HeaderIcon
           tooltipText='Settings'
-          onClick={() => setCurrentView('Settings')}>
+          onClick={() => handleSetCurrentView('Settings')}>
           <Cog6ToothIcon className='w-6 -mb-1' />
         </HeaderIcon>
         <HeaderIcon tooltipText='Notifications'>
