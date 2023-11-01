@@ -1,3 +1,4 @@
+import { setAvailability } from '@/redux/features/baseFolderStatus-slice';
 import { fetchFiles } from '@/redux/features/recentFiles-slice';
 import { AppDispatch } from '@/redux/store';
 import { appConfigStore } from '@/utils/appConfigStore';
@@ -44,6 +45,7 @@ const NoBaseFolderAlert: FC<NoBaseFolderAlertProps> = ({ isOpen, onClose }) => {
       if (status === 'exists' && baseFolder) {
         onClose();
         dispatch(fetchFiles(baseFolder));
+        dispatch(setAvailability(true));
       }
     }, 1000);
   };

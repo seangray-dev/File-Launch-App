@@ -13,6 +13,7 @@ import Stats from './components/Pages/Stats';
 import UserProfile from './components/Pages/UserProfile';
 import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { checkBaseFolderStatus } from './redux/features/baseFolderStatus-slice';
 import { fetchFiles, setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
 import { AppDispatch } from './redux/store';
@@ -43,7 +44,6 @@ function WrappedApp() {
   });
 
   // Local State
-  const [isDialogVisible, setDialogVisible] = useState(false);
   const [areFilesFetched, setAreFilesFetched] = useState(false);
 
   useEffect(() => {
@@ -58,21 +58,7 @@ function WrappedApp() {
   }, [dispatch]);
 
   useEffect(() => {
-    const perfromCheck = async () => {
-      const status = await checkBaseFolderExistence();
-      if (status === 'unavailable') {
-        setDialogVisible(true);
-        setAreFilesFetched(false);
-      } else if (status === 'available' && !areFilesFetched) {
-        const baseFolder = await appConfigStore.get<string>('baseFolder');
-        if (baseFolder) {
-          dispatch(fetchFiles(baseFolder));
-          setAreFilesFetched(true);
-        }
-      }
-    };
-
-    perfromCheck();
+    dispatch(checkBaseFolderStatus());
   }, [currentView, areFilesFetched, dispatch]);
 
   let componentInView;
@@ -103,7 +89,6 @@ function WrappedApp() {
   return (
     <main className='min-h-screen grid grid-cols-[200px_1fr] grid-rows-[auto_1fr_auto]'>
       <div data-tauri-drag-region className='faux-header'></div>
-
       <>
         <section>
           <SideBar setCurrentView={setCurrentView} />
@@ -111,14 +96,7 @@ function WrappedApp() {
         <section className='flex flex-col h-full'>
           <Header logout={logout} setCurrentView={setCurrentView} />
           <div className='flex-grow grid overflow-y-auto'>
-            {isDialogVisible ? (
-              <NoBaseFolderAlert
-                isOpen={isDialogVisible}
-                onClose={() => setDialogVisible(false)}
-              />
-            ) : (
-              <>{componentInView}</>
-            )}
+            {componentInView}
           </div>
           <div className='bottom-0 sticky z-50'>
             <AudioPlayer />

@@ -1,3 +1,6 @@
+import NoBaseFolderAlert from '@/components/NoBaseFolderAlert';
+import { checkBaseFolderStatus } from '@/redux/features/baseFolderStatus-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 import {
   ArrowLeftOnRectangleIcon,
   BellIcon,
@@ -5,6 +8,8 @@ import {
   UserIcon,
 } from '@heroicons/react/24/solid';
 import { Cable, CheckCircle2, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
@@ -14,22 +19,59 @@ type HeaderProps = {
 };
 
 const Header = ({ setCurrentView, logout }: HeaderProps) => {
+  // Redux
+  const dispatch: AppDispatch = useDispatch();
+  const { isAvailable, isLoading } = useSelector(
+    (state: RootState) => state.baseFolderStatus
+  );
+
+  // Local State
+  const [isAlertVisible, setIsAlertVisible] = useState(false);
+
+  useEffect(() => {
+    dispatch(checkBaseFolderStatus());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isAvailable === false) {
+      setIsAlertVisible(true);
+    }
+  }, [isAvailable]);
+
+  const handleCloseAlert = () => {
+    setIsAlertVisible(false);
+  };
+
+  const toggleAlertVisibility = () => {
+    setIsAlertVisible((prevState) => !prevState);
+  };
+
   return (
     <header className='sticky top-0 pt-8 p-4 border-b border-gray/10 bg-background z-50'>
       <ul className='flex gap-2 items-center justify-end'>
-        <HeaderIcon tooltipText='Base Folder Status'>
-          <div className='relative'>
-            <Cable className='-mb-1' />
-            <XCircle
-              color='#FFFFFF'
-              size={14}
-              className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
-            />
-            <CheckCircle2
-              color='#FFFFFF'
-              size={14}
-              className='absolute -bottom-1 -left-1 rounded-full bg-green-500'
-            />
+        <HeaderIcon
+          tooltipText={
+            isAvailable === null
+              ? 'Checking Base Folder Status...'
+              : isAvailable
+              ? 'Base Folder is available'
+              : 'Base Folder is unavailable'
+          }>
+          <div className='relative' onClick={toggleAlertVisibility}>
+            <Cable />
+            {isAvailable === null ? null : isAvailable ? (
+              <CheckCircle2
+                color='#FFFFFF'
+                size={14}
+                className='absolute -bottom-1 -left-1 rounded-full bg-green-500'
+              />
+            ) : (
+              <XCircle
+                color='#FFFFFF'
+                size={14}
+                className='absolute -bottom-1 -left-1 rounded-full bg-destructive'
+              />
+            )}
           </div>
         </HeaderIcon>
         <HeaderIcon tooltipText='Keyboard Shortcuts'>
@@ -52,6 +94,9 @@ const Header = ({ setCurrentView, logout }: HeaderProps) => {
           <ArrowLeftOnRectangleIcon className='w-6 -mb-1' />
         </HeaderIcon>
       </ul>
+      {isAvailable === false && (
+        <NoBaseFolderAlert isOpen={isAlertVisible} onClose={handleCloseAlert} />
+      )}
     </header>
   );
 };
