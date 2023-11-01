@@ -1,3 +1,4 @@
+import { setAvailability } from '@/redux/features/baseFolderStatus-slice';
 import { fetchFiles } from '@/redux/features/recentFiles-slice';
 import { AppDispatch } from '@/redux/store';
 import { appConfigStore } from '@/utils/appConfigStore';
@@ -41,9 +42,12 @@ const NoBaseFolderAlert: FC<NoBaseFolderAlertProps> = ({ isOpen, onClose }) => {
     const status = await checkBaseFolderExistence();
     setTimeout(() => {
       setIsLoading(false);
-      if (status === 'exists' && baseFolder) {
+      if (status === 'available' && baseFolder) {
         onClose();
         dispatch(fetchFiles(baseFolder));
+        dispatch(setAvailability(true));
+      } else {
+        dispatch(setAvailability(false));
       }
     }, 1000);
   };
@@ -73,10 +77,7 @@ const NoBaseFolderAlert: FC<NoBaseFolderAlertProps> = ({ isOpen, onClose }) => {
             {isLoading ? (
               <ButtonLoading />
             ) : (
-              <Button
-                // variant={'destructive'}
-                className='w-full'
-                onClick={handleCheckBaseFolder}>
+              <Button className='w-full' onClick={handleCheckBaseFolder}>
                 Check Again
               </Button>
             )}
