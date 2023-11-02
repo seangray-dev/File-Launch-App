@@ -3,7 +3,7 @@ import GoogleSignInBtn from '@/services/supabase/GoogleSignInBtn';
 import { invoke, shell } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
 import { useEffect, useState } from 'react';
-import callbackTemplate from '../auth/callback.template';
+import callbackTemplate from './callback.template';
 import { supabase } from './supabaseClient';
 
 function getLocalHostUrl(port: number) {
