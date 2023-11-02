@@ -1,15 +1,17 @@
+import DropboxSignInBtn from '@/services/supabase/DropboxSignInBtn';
+import GoogleSignInBtn from '@/services/supabase/GoogleSignInBtn';
 import { invoke, shell } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
 import { useEffect, useState } from 'react';
+import callbackTemplate from '../auth/callback.template';
 import { supabase } from './supabaseClient';
 
 function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
 }
 
-export default function Auth() {
+export function Auth() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
   const [port, setPort] = useState<number | null>(null);
 
   useEffect(() => {
@@ -37,7 +39,11 @@ export default function Auth() {
     });
 
     let _port: number | null = null;
-    invoke('plugin:oauth|start').then(async (port) => {
+    invoke('plugin:oauth|start', {
+      config: {
+        response: callbackTemplate,
+      },
+    }).then(async (port) => {
       setPort(port as number);
       _port = port as number;
     });
@@ -48,24 +54,7 @@ export default function Auth() {
     };
   }, [port]);
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: getLocalHostUrl(port!) },
-    });
-
-    if (error) {
-      alert(error.message);
-    } else {
-      alert('Check your email for the login link!');
-    }
-    setLoading(false);
-  };
-
-  const onProviderLogin = (provider: 'google' | 'github') => async () => {
+  const onProviderLogin = (provider: 'google') => async () => {
     setLoading(true);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -85,47 +74,33 @@ export default function Auth() {
   };
 
   return (
-    <div className='row flex flex-center'>
-      <div className='col-8 form-widget'>
-        <h1 className='header'>Tauri + Supabase Auth</h1>
-
-        <div className='auth-container'>
-          <div className='oauth-buttons'>
-            <button onClick={onProviderLogin('github')}>GitHub</button>
-            <button onClick={onProviderLogin('google')}>Google</button>
-          </div>
-
-          <div className='flex flex-center'>
-            <span>OR</span>
-          </div>
-          <div className='magic-form'>
-            <p className='description'>
-              Sign in via magic link with your email below
-            </p>
-            <form className='form-widget' onSubmit={handleLogin}>
-              <div>
-                <input
-                  className='inputField'
-                  type='email'
-                  placeholder='Your email'
-                  value={email}
-                  required={true}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <button className={'button block'} disabled={loading}>
-                  {loading ? (
-                    <span>Loading</span>
-                  ) : (
-                    <span>Send magic link</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+    <main className='grid place-items-center h-screen w-full'>
+      <div data-tauri-drag-region className='faux-header'></div>
+      <div className='flex flex-col gap-10'>
+        <img
+          className='dark:hidden'
+          src={'/images/logo-no-background-light.png'}
+          width={500}
+        />
+        <img
+          className='dark:block hidden'
+          src={'/images/logo-no-background.png'}
+          width={500}
+        />
+        <div className='flex flex-col gap-4'>
+          <GoogleSignInBtn onLogin={onProviderLogin} />
+          <DropboxSignInBtn onLogin={onProviderLogin} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
+
+export const signOutAuth = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert(error.message);
+    console.error(error);
+    return;
+  }
+};

@@ -1,6 +1,10 @@
 import { Button } from '@/components/ui/button';
 
-const GoogleSignInBtn = ({ onLogin }) => {
+type Props = {
+  onLogin: (provider: 'google') => () => void;
+};
+
+const GoogleSignInBtn = ({ onLogin }: Props) => {
   const handleClick = () => {
     onLogin('google')();
   };
@@ -16,4 +20,3 @@ const GoogleSignInBtn = ({ onLogin }) => {
 };
 
 export default GoogleSignInBtn;
-  

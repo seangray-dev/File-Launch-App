@@ -1,6 +1,10 @@
 import { Button } from '@/components/ui/button';
 
-const DropboxSignInBtn = ({ onLogin }) => {
+type Props = {
+  onLogin: (provider: 'google') => () => void;
+};
+
+const DropboxSignInBtn = ({ onLogin }: Props) => {
   const handleClick = () => {
     onLogin('google')();
   };
