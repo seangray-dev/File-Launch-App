@@ -1,42 +1,44 @@
-import { firebaseApp } from '@/services/firebase/app';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { createContext, ReactNode, useEffect, useState } from 'react';
-import SignInPage from '../components/Pages/SignIn';
+import { Auth } from '@/services/supabase/auth';
+import { supabase } from '@/services/supabase/supabaseClient';
+import { AuthSession, User } from '@supabase/supabase-js';
+import { ReactNode, createContext, useEffect, useState } from 'react';
 
-// Initialize Firebase
-firebaseApp;
-
-// Type the context
 interface AuthContextType {
-	user: User | null;
+  user: User;
 }
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-// Type the children and other props
 interface AuthProviderProps {
-	children: ReactNode;
+  children: ReactNode;
 }
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-	// Type the user state
-	const [user, setUser] = useState<User | null>(null);
+  // Type the user state
+  const [user, setUser] = useState<User | null>(null);
 
-	useEffect(() => {
-		const auth = getAuth();
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			setUser(user);
-		});
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
 
-		return () => unsubscribe();
-	}, []);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-	if (!user) {
-		return <SignInPage />;
-	}
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
-	return (
-		<AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
-	);
+  if (!user) {
+    return <Auth />;
+  }
+
+  return (
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

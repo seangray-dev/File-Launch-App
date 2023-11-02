@@ -15,10 +15,10 @@ import { HeaderIcon } from '../../ui/headericon';
 import ShortcutsPopover from './ShortcutsPopover';
 
 type HeaderProps = {
-  logout: () => void;
+  signOut: () => void;
 };
 
-const Header = ({ logout }: HeaderProps) => {
+const Header = ({ signOut }: HeaderProps) => {
   // Redux
   const dispatch: AppDispatch = useDispatch();
   const { isAvailable } = useSelector(
@@ -94,7 +94,7 @@ const Header = ({ logout }: HeaderProps) => {
         <HeaderIcon tooltipText='Notifications'>
           <BellIcon className='w-6 -mb-1' />
         </HeaderIcon>
-        <HeaderIcon tooltipText='Logout' onClick={logout}>
+        <HeaderIcon tooltipText='Logout' onClick={signOut}>
           <ArrowLeftOnRectangleIcon className='w-6 -mb-1' />
         </HeaderIcon>
       </ul>

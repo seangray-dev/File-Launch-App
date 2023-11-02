@@ -17,7 +17,7 @@ import { setCurrentView } from './redux/features/navigation-slice';
 import { setBaseFolder } from './redux/features/recentFiles-slice';
 import { ReduxProvider } from './redux/provider';
 import { AppDispatch, RootState } from './redux/store';
-import { logout } from './services/auth';
+import { signOutAuth } from './services/supabase/auth';
 import { appConfigStore } from './utils/appConfigStore';
 
 function App() {
@@ -75,7 +75,7 @@ function WrappedApp() {
           <SideBar />
         </section>
         <section className='flex flex-col h-full'>
-          <Header logout={logout} />
+          <Header signOut={signOutAuth} />
           <div className='flex-grow grid overflow-y-auto'>
             {components[currentViewKey]}
           </div>
