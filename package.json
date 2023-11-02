@@ -30,7 +30,6 @@
     "@supabase/supabase-js": "^2.38.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "firebase": "^9.22.2",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.277.0",
     "react": "^18.2.0",
