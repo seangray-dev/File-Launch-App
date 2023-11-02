@@ -4,7 +4,7 @@ import { AuthSession, User } from '@supabase/supabase-js';
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
-  user: User 
+  user: User;
 }
 export const AuthContext = createContext<AuthContextType | null>(null);
 
